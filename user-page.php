@@ -523,70 +523,89 @@ $(window).load(function() {
 			<button class="btn_cancel" onclick="document.getElementById('popup_confirm').style.visibility = 'hidden';">Hủy bỏ</button>
 			<button class="btn_confirm" onclick="
                 document.getElementById('popup_confirm').style.visibility = 'hidden';
-                showAlert('danger', 'Tính năng bị giới hạn ', 3000);
-                return;
-                
-                $.ajax({
-                    type: 'GET',
-                    url: './php/request_all_user.php',
-                    data: {},
-                    timeout: 3000,
-                    success: function(data_response) {
-                        if (data_response.length > 0) {
-                            var obj = JSON.parse(data_response);
-                            var objArray = [document.getElementById('content_popup_confirm').name];
+                if (document.getElementById('header_popup_confirm').innerHTML.localeCompare('XÓA TÀI KHOẢN') == 0)
+                {
+                    $.ajax({
+                        type: 'GET',
+                        url: './php/request_all_user.php',
+                        data: {},
+                        timeout: 3000,
+                        success: function(data_response) {
+                            if (data_response.length > 0) {
+                                var obj = JSON.parse(data_response);
+                                var objArray = [document.getElementById('content_popup_confirm').name];
 
-                            for (var i = 0; i < Object.keys(obj).length; i++) 
-                            {
-                                if(obj[i].tags.length == 1)
+                                for (var i = 0; i < Object.keys(obj).length; i++) 
                                 {
-                                    tagsMaster = obj[i].tags[0];
-                                }
-                                else
-                                {
-                                    tagsMaster = obj[i].tags;
-                                }   
-
-                                var parts = tagsMaster.split('_');                    
-                                if ((parts.length == 3) && (parts[1].localeCompare(document.getElementById('content_popup_confirm').name) == 0))
-                                {
-                                    objArray.push(obj[i].name);
-                                }
-                            }  
-                            
-                            if (objArray.length > 0) {
-                                // Delete user
-                                $.ajax({
-                                    type: 'POST',
-                                    url: './php/delete_user.php',
-                                    data: {
-                                        'users': objArray
-                                    },
-                                    success: function(result) {
-                                    
-                                        if (result.localeCompare('ok') != 0) {
-                                            showAlert('danger', 'Xóa tài khoản thất bại', 3000);
-                                        }
-                                        else
-                                        {
-                                            showUser(1);
-                                            showAlert('success', 'Xóa tài khoản thành công', 3000);
-                                        }
+                                    if(obj[i].tags.length == 1)
+                                    {
+                                        tagsMaster = obj[i].tags[0];
                                     }
-                                });                  
+                                    else
+                                    {
+                                        tagsMaster = obj[i].tags;
+                                    }   
+
+                                    var parts = tagsMaster.split('_');                    
+                                    if ((parts.length == 3) && (parts[1].localeCompare(document.getElementById('content_popup_confirm').name) == 0))
+                                    {
+                                        objArray.push(obj[i].name);
+                                    }
+                                }  
+                                
+                                if (objArray.length > 0) {
+                                    // Delete user
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: './php/delete_user.php',
+                                        data: {
+                                            'users': objArray
+                                        },
+                                        success: function(result) {
+                                        
+                                            if (result.localeCompare('ok') != 0) {
+                                                showAlert('danger', 'Xóa tài khoản thất bại', 3000);
+                                            }
+                                            else
+                                            {
+                                                showUser(1);
+                                                showAlert('success', 'Xóa tài khoản thành công', 3000);
+                                            }
+                                        }
+                                    });                  
+                                }
+                            }            
+                        },
+                        error: function(xhr, status, error) {
+                            if (status === 'timeout' && retryCount < maxRetries) {
+                                retryCount++;
+                                // Retry AJAX call
+                                showUser(1);
+                            } else {
+                                showAlert('danger', 'Gặp sự cố khi kết nối đến máy chủ', 3000);               
                             }
-                        }            
-                    },
-                    error: function(xhr, status, error) {
-                        if (status === 'timeout' && retryCount < maxRetries) {
-                            retryCount++;
-                            // Retry AJAX call
-                            showUser(1);
-                        } else {
-                            showAlert('danger', 'Gặp sự cố khi kết nối đến máy chủ', 3000);               
+                        } 
+                    });                         
+                }   
+                else if (document.getElementById('header_popup_confirm').innerHTML.localeCompare('THIẾT LẬP TÀI KHOẢN') == 0)
+                {
+                    $.ajax({
+                        type: 'POST',						
+                        url: './php/reset_user.php',
+                        data: {
+                        'Name': document.getElementById('content_popup_confirm').name
+                        },
+                        success: function(data) {
+                            if (data.localeCompare('error') == 0) {
+                                showAlert('danger', 'Thiết lập tài khoản thất bại', 3000);
+                            }
+                            else
+                            {
+                                showAlert('success', 'Thiết lập tài khoản thành công', 3000);
+                            }
                         }
-                    } 
-                });                   
+                    });                    
+                }           
             ">Xác nhận</button>
 		</div>
 	</div>

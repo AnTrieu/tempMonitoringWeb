@@ -827,6 +827,7 @@
                         'password_new': document.getElementById("password_new").value
                     },
                     success: function(data) {
+                        //console.log(data);
                         // Login fail => back to menu login
                         document.getElementById("wait_div").style.visibility = 'hidden';
     

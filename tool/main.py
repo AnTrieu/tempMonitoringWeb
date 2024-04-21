@@ -339,7 +339,7 @@ class MQTTThread(threading.Thread):
         self.connected = False
         self.message_queue = message_queue
         self.pub_queue = pub_queue
-        self.client = mqtt.Client(clean_session=True)
+        self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, clean_session=True)
 
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -414,7 +414,7 @@ class MQTTThread(threading.Thread):
 
 def init_log() :    
     # Create if the log folder does not exist 
-    log_path = "/var/www/display_via_mqtt/android_box/new_site/tool/logging"
+    log_path = "/var/www/tempMonitoringWeb/tool/logging"
     if not os.path.isdir(log_path):
        os.makedirs(log_path)
     
@@ -425,7 +425,7 @@ def init_log() :
         datefmt='%a, %d %b %Y %H:%M:%S',
         handlers=[
             logging.handlers.RotatingFileHandler(
-                filename    = '/var/www/display_via_mqtt/android_box/new_site/tool/logging/main.log', 
+                filename    = '/var/www/tempMonitoringWeb/tool/logging/main.log', 
                 maxBytes    = 20 * 1024 * 1024,
                 mode        = 'a', 
                 backupCount = 10,
@@ -447,7 +447,7 @@ if __name__ == "__main__":
     mqtt_thread = MQTTThread(message_queue, pub_queue)
     mqtt_thread.start()
 
-    db_thread = SQLiteDB("/var/www/display_via_mqtt/android_box/new_site/tool/data_temperate.db", message_queue, pub_queue)
+    db_thread = SQLiteDB("/var/www/tempMonitoringWeb/tool/data_temperate.db", message_queue, pub_queue)
     db_thread.start()
 
     # Main thread

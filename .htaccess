@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# Add ".php"
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [NC,L] 
+
+# Redirect HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI}
+
+SetEnv HOST_IP "203.29.16.72"
+SetEnv LOCAL_IP "127.0.0.1"
+SetEnv USER_DEFAULT "port_get_info_user"
+SetEnv PASS_DEFAULT "123456789"
+
+php_value upload_max_filesize 50M
+php_value post_max_size 50M
+php_value max_execution_time 600

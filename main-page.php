@@ -342,7 +342,7 @@
                     }
                     else if (obj.type.localeCompare("Logout") == 0)
                     {
-                        logout_process();
+                        sessionStorage.clear();
                     }
                     else if (obj.type.localeCompare("Show-User-info") == 0)
                     {
