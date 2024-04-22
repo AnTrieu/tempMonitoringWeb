@@ -85,7 +85,7 @@
                             }
                             else
                             {
-                                showAlert('danger', 'Không có quyền thiết lập', 5000);   
+                                showAlert('danger', 'No permissions are configured', 5000);   
                             }                                
                         ">
                     </span>
@@ -109,11 +109,11 @@
                     }
                     else
                     {
-                        showAlert('danger', 'Không có quyền thiết lập', 5000);   
+                        showAlert('danger', 'No permissions are configured', 5000);   
                     }                              
-                ">Khai báo sự cố</span></a></li>            
+                ">Report an issue</span></a></li>            
             <li><a href="#" id="action2" style="color: black; padding-left: 5px; display: flex; justify-content: start; align-items: center;"><img src="./img/history-icon.png" width="20px" height="20px" style="padding-right:5px; margin-right: 5px;"><span
-                onclick="requestDataToDrawChart(new Date());">Lịch sử thiết bị</span></a></li>
+                onclick="requestDataToDrawChart(new Date());">Chart</span></a></li>
         </ul>
     </div>
 
@@ -143,7 +143,7 @@
                     } 
                     else
                     {
-                        showAlert('danger', 'Không có quyền thiết lập', 5000);   
+                        showAlert('danger', 'No permissions are configured', 5000);   
                     }                 
                 ">
             </label>
@@ -167,7 +167,7 @@
                     else
                     {
                         document.getElementById('title').childNodes[7].childNodes[1].checked = !this.checked;
-                        showAlert('danger', 'Không có quyền thiết lập', 5000);   
+                        showAlert('danger', 'No permissions are configured', 5000);   
                     }                     
                 ">
             <label class="title-label" style="font-size: 1.2vw; padding-left: 30px;"></label> 
@@ -316,7 +316,7 @@
                 document.getElementById('wait_div').style.visibility = 'hidden';
                 document.getElementById('popup_chart').style.visibility = 'hidden';
                 document.getElementById('row-function').style.visibility = 'hidden'; 
-                showAlert('danger', 'Lỗi tải dữ liệu', 5000);                       
+                showAlert('danger', 'Data loading error', 5000);                       
             }, 15000);
 
             // Clean buffer
@@ -394,7 +394,7 @@
                 }
                 else if (document.getElementById('issue_input').value.indexOf('_') !== -1)
                 {
-                    showAlert('danger', 'Không chứ kí tự \'_\'', 3000);
+                    showAlert('danger', 'Contains no characters \'_\'', 3000);
                     cancelPopup(document.getElementById('popup_enter_issue'));
                 }
                 else
@@ -450,7 +450,7 @@
                     }
                     else
                     {
-                        showAlert('danger', 'Sai mật khẩu', 3000);
+                        showAlert('danger', 'Incorrect password', 3000);
                     }
                     
                     cancelPopup(document.getElementById('popup_enter_confirm'));             
@@ -599,7 +599,7 @@
             document.getElementById('title').childNodes[3].style.width = normalize(472, width_Img, bodyWidth) + 'px';
             document.getElementById('title').childNodes[3].style.top = normalize(66, height_Img, bodyHeight) + 'px';
             document.getElementById('title').childNodes[3].style.left = normalize(0, width_Img, bodyWidth) + 'px';
-            document.getElementById('title').childNodes[3].childNodes[1].textContent = "Ngưỡng cảnh báo";
+            document.getElementById('title').childNodes[3].childNodes[1].textContent = "Warning level";
 
             document.getElementById('title').childNodes[5].style.height = normalize(61, height_Img, bodyHeight) + 'px';
             document.getElementById('title').childNodes[5].style.width = normalize(157, width_Img, bodyWidth) + 'px';
@@ -622,7 +622,7 @@
                 document.getElementById('title').childNodes[7].childNodes[1].checked = m_warningFlag;
             }
                 
-            document.getElementById('title').childNodes[7].childNodes[3].textContent = "Báo sự cố";
+            document.getElementById('title').childNodes[7].childNodes[3].textContent = "Notification of errors";
 
             document.getElementById('title').childNodes[9].style.height = normalize(90, height_Img, bodyHeight) + 'px';
             document.getElementById('title').childNodes[9].style.width = normalize(632, width_Img, bodyWidth) + 'px';
@@ -655,7 +655,7 @@
 
             if(document.getElementById('title').childNodes[9].childNodes[1].childNodes.length == 0)
             {
-                document.getElementById('title').childNodes[9].childNodes[1].textContent = "Không có dữ liệu";
+                document.getElementById('title').childNodes[9].childNodes[1].textContent = "No data";
             }           
 
             // Out site
@@ -896,7 +896,7 @@
                                             document.getElementById("EB_circle_" + j).name = msg.data.locations[i][4][j - 1]; 
                                             if ((-0xffff < m_temperate[j - 1]) && (m_temperate[j - 1] < 0xffff))
                                             {
-                                                m_temperate[j - 1] -= 20;
+                                                // m_temperate[j - 1] -= 20;
                                                 if (!document.getElementById("EB_circle_" + j).classList.contains("online"))
                                                     document.getElementById("EB_circle_" + j).classList.add("online");    
                                                     
@@ -928,7 +928,7 @@
 
                                             if ((-0xffff < m_temperate[j - 1]) && (m_temperate[j - 1] < 0xffff))
                                             {
-                                                m_temperate[j - 1] -= 20;
+                                                // m_temperate[j - 1] -= 20;
                                                 if (!document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.contains("online"))
                                                     document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.add("online");
 

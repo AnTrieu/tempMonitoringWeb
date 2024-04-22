@@ -243,7 +243,7 @@ form input[type="button"] {
 }
 
 .transparent-button {
-  background: #32CD32;
+  background: #0096FF;
 
   font-size: 1.1vw;
   font-weight: bold;
@@ -261,8 +261,14 @@ form input[type="button"] {
   text-overflow: ellipsis;
 }
 
-.warning {
+.middle {
+  background: yellow;
+  color: red;
+}
+
+.overload {
   background: red;
+  color: yellow;
 }
 
 .transparent-label {

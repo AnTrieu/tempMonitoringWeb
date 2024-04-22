@@ -41,8 +41,8 @@
         <input class="dropdown" type="checkbox" id="dropdown" name="dropdown"/>
         <label class="for-dropdown" for="dropdown" id="username-profile"></label>
         <div class="section-dropdown" id="section-dropdown" > 
-            <a href="#" onclick="switch_user_form()" style="display: none;">Tài khoản</a>
-            <a href="#" onclick="logout_process()">Thoát</a>
+            <a href="#" onclick="switch_user_form()" style="display: none;">Account</a>
+            <a href="#" onclick="logout_process()">Logout</a>
         </div>
     </div>
 
@@ -343,6 +343,8 @@
                     else if (obj.type.localeCompare("Logout") == 0)
                     {
                         sessionStorage.clear();
+
+                        sessionStorage.setItem('page_current', 'login_page');
                     }
                     else if (obj.type.localeCompare("Show-User-info") == 0)
                     {

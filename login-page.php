@@ -5,13 +5,14 @@
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="shortcut icon" href="#">
-    <link rel="stylesheet" type="text/css" href="./css/login_page.css?v=1.0.2">
+    <link rel="stylesheet" type="text/css" href="./css/login_page.css?v=1.0.3">
     <script src="js/jquery.min.js"></script>
     <script src="./js/common.js?v1.0"></script>
 
     <script>
         let timeoutMainProcess = 0;
         let restartFlag = -1;
+        let test = 3;
     </script>
 </head>
 
@@ -23,21 +24,21 @@
 			</div>	
             
             <!-- Main form-->
-            <input type="text" id="username" class="fadeIn third" name="username" placeholder="Tài khoản" onfocus="focusFunction()" required>
-            <input type="password" id="password" class="fadeIn third" name="password" placeholder="Mật khẩu" onfocus="focusFunction()" required>
-            <input type="button" id="button-confirm" style="cursor: pointer;" class="btn-login fadeIn fourth" value="Đăng nhập" onclick="login_btn()">
+            <input type="text" id="username" class="fadeIn third" name="username" placeholder="Account" onfocus="focusFunction()" required>
+            <input type="password" id="password" class="fadeIn third" name="password" placeholder="Password" onfocus="focusFunction()" required>
+            <input type="button" id="button-confirm" style="cursor: pointer;" class="btn-login fadeIn fourth" value="Login" onclick="login_btn()">
             <div class="form-btn" id="form-btn">
-                <a style="font-size: 13px; color: blue; background-color: WhiteSmoke;" href="#" class="fadeIn fourth" onclick="changeForm(1)">Đổi mật khẩu</a>	                    
+                <a style="font-size: 13px; color: blue; background-color: WhiteSmoke;" href="#" class="fadeIn fourth" onclick="changeForm(1)">Change Password</a>	                    
             </div>	
             
 
-            <input type="text" id="username_change" class="fadeIn second" style="display:none;" name="username" placeholder="Tài khoản" onfocus="focusFunction()" required>
-            <input type="password" id="password_old" class="fadeIn third" style="display:none;" name="password" placeholder="Mật khẩu cũ" onfocus="focusFunction()" required>
-			<input type="password" id="password_new" class="fadeIn third" style="display:none;" name="password" placeholder="Mật khẩu mới" onfocus="focusFunction()" required>
-			<input type="password" id="password_new_comfirm" class="fadeIn third" style="display:none;" name="password" placeholder="Mật khẩu mới" onfocus="focusFunction()" required>	   
-            <input type="button" id="button-confirm-change" style="cursor: pointer; display:none;" class="btn-login fadeIn fourth" value="Xác nhận" onclick="actionChangePassword()">                     
+            <input type="text" id="username_change" class="fadeIn second" style="display:none;" name="username" placeholder="Account" onfocus="focusFunction()" required>
+            <input type="password" id="password_old" class="fadeIn third" style="display:none;" name="password" placeholder="Old password" onfocus="focusFunction()" required>
+			<input type="password" id="password_new" class="fadeIn third" style="display:none;" name="password" placeholder="New password" onfocus="focusFunction()" required>
+			<input type="password" id="password_new_comfirm" class="fadeIn third" style="display:none;" name="password" placeholder="New password" onfocus="focusFunction()" required>	   
+            <input type="button" id="button-confirm-change" style="cursor: pointer; display:none;" class="btn-login fadeIn fourth" value="Confirm" onclick="actionChangePassword()">                     
             <div id="temp_btn" class="form-btn fadeIn third" style="display:none;">
-                <a style="font-size: 13px; color: blue; background-color: WhiteSmoke;" href="#" class="fadeIn fourth" onclick="changeForm(2)">Quay lại</a>                                   
+                <a style="font-size: 13px; color: blue; background-color: WhiteSmoke;" href="#" class="fadeIn fourth" onclick="changeForm(2)">Back</a>                                   
             </div>	  
 
         </form>
@@ -70,7 +71,7 @@
         <button class="transparent-button" onclick="button_process('TBG_page')">GO! THÁI BÌNH</button>
     </div>
     <div class="div-area" id="TBG_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>	
 
 	<!-- GO! HẠ LONG -->
@@ -94,7 +95,7 @@
         <button class="transparent-button" onclick="button_process('HLG_page')">GO! HẠ LONG</button>
     </div>
     <div class="div-area" id="HLG_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>	
 	
 	<!-- GO! HẢI DƯƠNG -->
@@ -118,7 +119,7 @@
         <button class="transparent-button" onclick="button_process('HDG_page')">GO! HẢI DƯƠNG</button>
     </div>
     <div class="div-area" id="HDG_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>	
 	
 	<!-- GO! THÁI NGUYÊN -->
@@ -142,7 +143,7 @@
         <button class="transparent-button" onclick="button_process('TNN_page')">GO! THÁI NGUYÊN</button>
     </div> 
     <div class="div-area" id="TNN_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>	
 	
 	<!-- GO! ĐÀ NẴNG -->
@@ -166,7 +167,7 @@
         <button class="transparent-button" onclick="button_process('DNG_page')">GO! ĐÀ NẴNG</button>
     </div>
     <div class="div-area" id="DNG_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>
 	
 	<!-- GO! ĐÀ LẠT -->
@@ -190,7 +191,7 @@
         <button class="transparent-button" onclick="button_process('DLT_page')">GO! ĐÀ LẠT</button>
     </div>
     <div class="div-area" id="DLT_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>
 	
 	<!-- GO! DĨ AN -->
@@ -214,7 +215,7 @@
         <button class="transparent-button" onclick="button_process('DAN_page')">GO! DĨ AN</button>
     </div>
     <div class="div-area" id="DAN_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>
     
 	<!-- GO! NGUYỄN THỊ THẬP -->
@@ -238,7 +239,7 @@
         <button class="transparent-button" onclick="button_process('NTT_page')">GO! NGUYỄN THỊ THẬP</button>
     </div>
     <div class="div-area" id="NTT_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>
     
 	<!-- GO! MỸ THO -->
@@ -262,7 +263,7 @@
         <button class="transparent-button" onclick="button_process('MTO_page')">GO! MỸ THO</button>
     </div>
     <div class="div-area" id="MTO_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>
     
 	<!-- GO! CẦN THƠ -->
@@ -286,7 +287,7 @@
         <button class="transparent-button" onclick="button_process('CTO_page')">GO! CẦN THƠ</button>
     </div>
     <div class="div-area" id="CTO_EB_notify">
-        <label class="transparent-notify">Nhiệt độ bình thường</label>
+        <label class="transparent-notify">Normal temperature</label>
     </div>
 	
     <script>
@@ -834,13 +835,13 @@
                         setTimeout(function() {
                             if(data.length == 0)
                             {
-                                alert("Cập nhật thành công");
+                                alert("Update successful");
                                 
                                 changeForm(2);
                             }
                             else if((data.localeCompare("error") == 0) || (data.localeCompare("error info") == 0))
                             {
-                                alert("Cập nhật thất bại");
+                                alert("Update failed");
                             }
                         }, 50);	
                     }
@@ -914,6 +915,21 @@
                     if (msg.command.localeCompare("notify_data") == 0)
                     {
                         var currentTime = new Date();
+
+                        // Reinit label
+                        if(restartFlag >= 0)
+                        {
+                            for(var i = 0; i < msg.data.locations.length; i++)
+                            {
+                                if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                    document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
+                                if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                    document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")   
+                            }
+
+                            restartFlag = -1;
+                        }
+
                         for(var i = 0; i < msg.data.locations.length; i++)
                         {
                             var location        = msg.data.locations[i][0];
@@ -988,46 +1004,50 @@
                             
                                 // Update status warning
                                 if (msg.data.locations[i][1])
-                                    document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Có sự số";
+                                    document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Temperature breakdown";
                                 else
-                                    document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Nhiệt độ bình thường";
+                                    document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Normal temperature";
 
                                 // Only Warning from 8h -> 22h
-                                if(8 <= currentTime.getHours() && currentTime.getHours() <= 22)
+                                if (false || (8 <= currentTime.getHours() && currentTime.getHours() <= 22))
                                 {
+                                    var flagIgnore = false;
                                     for(var j = 0; j < (msg.data.locations[i][3].length - 1); j++)
-                                    {
-                                        if(restartFlag > 0)
+                                    {                                        
+                                        if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][3][j] >= 300))
                                         {
-                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("warning"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("warning")
-                                        }
-                                        else
-                                        {
-                                            if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][2] < msg.data.locations[i][3][j]))
-                                            {
-                                                if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("warning"))
-                                                    document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("warning")
-                                                else
-                                                    document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("warning")
+                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
+                                            if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("overload")
 
-                                                break;
-                                            }
+                                            break;
                                         }
-
-                                        if( j == (msg.data.locations[i][3].length - 1))
+                                        else if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (280 < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 300))
                                         {
-                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("warning"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("warning")
+                                            if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("middle")                                                
+                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")
                                                 
-                                            restartFlag = -1;
+                                            flagIgnore = true;
+                                        }
+
+                                        if (!flagIgnore && (j == (msg.data.locations[i][3].length - 2)))
+                                        {         
+                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
+                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")   
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("warning"))
-                                            document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("warning") 
+                                    if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                        document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
+                                    if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                        document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")                                             
                                 }
                             }
                         }
@@ -1050,7 +1070,7 @@
 
                         if (obj.type.localeCompare("Login-Failed") == 0)
                         {
-                            alert("Đăng nhập thất bại");
+                            alert("Login failed");
 
                             var obj         = new Object();
                             obj.type        = "Logout";

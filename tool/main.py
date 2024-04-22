@@ -10,6 +10,8 @@ import traceback
 import datetime
 from collections import defaultdict
 from logging.handlers import RotatingFileHandler
+import schedule
+import subprocess
 
 # Config MQTT
 broker_address = "127.0.0.1"
@@ -436,10 +438,20 @@ def init_log() :
         ]
     )
 
+def event_function():    
+    logging.info("Schedule the event for 2 AM")
+    
+    sudo_reboot = ["sudo", "reboot"]
+    subprocess.run(sudo_reboot, check=True)
+
 if __name__ == "__main__":
 
     init_log()
     logging.info("\n--------------------\n BEGIN \n--------------------")
+
+    # Schedule the event for 2 AM
+    logging.getLogger('schedule').setLevel(logging.WARNING)
+    schedule.every().day.at("02:00:00").do(event_function)
 
     message_queue = queue.Queue()
     pub_queue = queue.Queue()
@@ -480,6 +492,7 @@ if __name__ == "__main__":
                     time.sleep(0.1)
 
                     if time.time() - notify_time > 1.0:
+                        schedule.run_pending() 
                         notify_time = time.time()
 
                         # Semaphore
