@@ -60,12 +60,13 @@ body{
   resize: none;
   border: 0; /* Tắt border */
   outline: none; /* Loại bỏ border khi textarea được focus */  
+  cursor: pointer;
 }
 
 .back-button {
   position: fixed;
-  top: 20px;
-  left: 40px;
+  bottom: 10px; /* Đặt vị trí 20px từ phía dưới */
+  right: 10px; /* Đặt vị trí 40px từ phía bên phải */
   z-index: 199;
   visibility: hidden;
 }

@@ -110,7 +110,7 @@ class SQLiteDB(threading.Thread):
 
             # Delete old data after 3 days
             current_time_struct = time.localtime()
-            three_days_ago = datetime.datetime.fromtimestamp(time.mktime(current_time_struct)) - datetime.timedelta(days=10)
+            three_days_ago = datetime.datetime.fromtimestamp(time.mktime(current_time_struct)) - datetime.timedelta(days=60)
             ago_time_struct = three_days_ago.timetuple()
 
             logging.info("Begin date: " + str(time.strftime("%d/%m/%y %H:%M:%S", ago_time_struct)))
@@ -243,30 +243,31 @@ class SQLiteDB(threading.Thread):
                         if 'location' in payload_json:
                             for location in location_list:
                                 if(location[0] == payload_json['location']):
-
-                                    if payload_json['type'] == "Request-Warning-Flag":
-                                        location[1] = payload_json['value']
-        
-                                        # Update database
-                                        self.update_table("General_Info", "is_warning = " + str(location[1]) + " WHERE location = \'" + str(location[0]) + "\'")
-
-                                    elif payload_json['type'] == "Request-Threshold":
-                                        location[2] = payload_json['value']
-        
-                                        # Update database
-                                        self.update_table("General_Info", "threshold = " + str(location[2]) + " WHERE location = \'" + str(location[0]) + "\'")
+                                    logging.info("-> " + str(payload_json))
+                                    if payload_json['type'] == "Request-Threshold":
+                                        if not payload_json['value'] is None: 
+                                            location[2] = payload_json['value']
+            
+                                            # Update database
+                                            self.update_table("General_Info", "threshold = " + str(location[2]) + " WHERE location = \'" + str(location[0]) + "\'")
 
                                     elif payload_json['type'] == "Request-Notify" and payload_json['slot'] > 0:
-                                        location[4][payload_json['slot'] - 1] = payload_json['value']
+                                        if not payload_json['value'] is None: 
+                                            location[4][payload_json['slot'] - 1] = payload_json['value']
 
-                                        # Update database
-                                        self.update_table("General_Info", "notify = '" + '_'.join(map(str, location[4])) + "' WHERE location = \'" + str(location[0]) + "\'")
+                                            # Update database
+                                            self.update_table("General_Info", "notify = '" + '_'.join(map(str, location[4])) + "' WHERE location = \'" + str(location[0]) + "\'")
 
                                     elif payload_json['type'] == "Request-Issue" and payload_json['slot'] > 0:
-                                        location[5].append(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S', time.localtime())}] Vị trí \"{location[4][payload_json['slot'] - 1]}\":\n{payload_json['value']}")
-                                        location[5] = location[5][1:]
-                                    
-                                        self.update_table("General_Info", "issue = '" + '_'.join(map(str, location[5])) + "' WHERE location = \'" + str(location[0]) + "\'")
+                                        if not payload_json['value'] is None: 
+                                            if payload_json['slot'] != 999:
+                                                location[5].append(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S', time.localtime())}] Location \"{location[4][payload_json['slot'] - 1]}\":\n{payload_json['value']}")
+                                            else:
+                                                location[5].append(f"\n[{time.strftime('%d/%m/%Y %H:%M:%S', time.localtime())}] Total:\n{payload_json['value']}")
+                                                
+                                            location[5] = location[5][1:]
+                                        
+                                            self.update_table("General_Info", "issue = '" + '_'.join(map(str, location[5])) + "' WHERE location = \'" + str(location[0]) + "\'")
 
                                     elif payload_json['type'] == "Request-Chart" and payload_json['slot'] > 0:
                                         data_filter = []

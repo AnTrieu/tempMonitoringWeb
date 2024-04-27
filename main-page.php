@@ -48,7 +48,7 @@
 
     <div class="back-button" id="back-button">
         <a href="#" onclick="switch_main_form()">
-            <img src="./img/back-icon.png" alt="Back" width="30" height="30">
+            <img src="./img/home-icon.png" alt="Back" width="50vw" height="50vh">
         </a>
     </div>
 
@@ -116,7 +116,7 @@
             document.getElementById(sessionStorage.getItem('page_current')).style.display = "";
 
             document.getElementById("dropdown").checked = false;
-            document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
+            // document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
             document.getElementById("back-button").style.visibility = 'visible';    
 
             var obj     = new Object();
@@ -221,6 +221,21 @@
                             if(msg.data.location.length > 0)
                             {
                                 allow_location = msg.data.location[0];
+
+                                if ((typeUser == 1) || (typeUser == 4))
+                                {
+                                    var obj = new Object();
+                                    obj.topic = null;
+                                    obj.type = "Update-Type-User";
+                                    obj.rootTypeUser = typeUser;
+                                    obj.typeUser = -1;
+                                    if (allow_location.includes(sessionStorage.getItem('page_current').split('_')[0]))
+                                    {
+                                        obj.typeUser = typeUser;
+                                    }
+                                    
+                                    document.getElementById(page_current).contentWindow.postMessage(JSON.stringify(obj), '*');                            
+                                }
                             }
                         }
                     }
@@ -262,10 +277,10 @@
             window.addEventListener('resize', function() {
                 
                 // Set vị tri back button
-                if(document.getElementById("back-button").style.visibility != null)
-                {                    
-                    document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
-                }
+                // if(document.getElementById("back-button").style.visibility != null)
+                // {                    
+                //     document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
+                // }
 
                 if(sessionStorage.getItem('page_current').localeCompare("login_page") == 0)
                 {
@@ -367,7 +382,7 @@
                             (page_current.localeCompare("MTO_page") == 0)  ||
                             (page_current.localeCompare("CTO_page") == 0)))
                         {
-                            document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
+                            // document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
                             document.getElementById("back-button").style.visibility = 'visible';
                         }
 
@@ -377,13 +392,13 @@
                         if ((typeUser == 1) || (typeUser == 4))
                         {
                             document.getElementById("section-dropdown").childNodes[1].style.display = "";
-
+                            
                             var obj = new Object();
                             obj.topic = null;
                             obj.type = "Update-Type-User";
                             obj.rootTypeUser = typeUser;
                             obj.typeUser = -1;
-                            if (allow_location.includes(sessionStorage.getItem('page_current').split('_')[0]))
+                            if (allow_location.includes(page_current.split('_')[0]))
                             {
                                 obj.typeUser = typeUser;
                             }
@@ -401,7 +416,7 @@
                         document.getElementById(sessionStorage.getItem('page_current')).style.display = "";
 
                         document.getElementById("dropdown").checked = false;
-                        document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
+                        // document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
                         document.getElementById("back-button").style.visibility = 'visible';
 
                         setTitleWeb(obj.location);
@@ -442,10 +457,10 @@
                     }
                     else if (obj.type.localeCompare("Keep-Alive") == 0)
                     {
-                        clearTimeout(timeoutSession);
-                        timeoutSession = setTimeout(function() {
-                            logout_process();                             
-                        }, 1800000);  
+                        //clearTimeout(timeoutSession);
+                        //timeoutSession = setTimeout(function() {
+                        //    logout_process();                             
+                        //}, 1800000);  
                     }
                     else if ((obj.type.localeCompare("Request-Warning-Flag") == 0)  ||
                              (obj.type.localeCompare("Request-Threshold") == 0)     ||

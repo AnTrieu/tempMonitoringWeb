@@ -10,7 +10,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script src="./js/jquery.min.js"></script>
-    <script src="./js/common.js?v1.0"></script>
+    <script src="./js/common.js?v1.0.1"></script>
     <script src="js/xlsx.full.min.js"></script>
 
     <script>
@@ -146,52 +146,52 @@
                     }                     
                 ">
             </label>
-            <input type="text" style="width:100%; height:100%; font-size: 1.2vw; display: none;" oninput="this.value = this.value.replace(/[^0-9.]/g, '');" onblur="selectThreshold()" onkeydown="if (event.keyCode === 13) {selectThreshold();}">
-        </div> 
-        <div style="position: absolute; display: flex; justify-content: start; align-items: center;">
-            <input type="checkbox" style="left: 0px; opacity: 1; pointer-events: auto;" 
-                onclick="
-                    if ((typeUser == 1) || (typeUser == 4))
-                    {
-                        m_timeUpdate = Math.floor(new Date().getTime() / 1000);
-                        m_warningFlag = this.checked;
-
-                        var obj = new Object();
-                        obj.type        = 'Request-Warning-Flag';
-                        obj.location    = document.body.className.split('_')[1];
-                        obj.value       = m_warningFlag;
-
-                        window.parent.postMessage(JSON.stringify(obj), '*');                         
-                    } 
-                    else
-                    {
-                        document.getElementById('title').childNodes[7].childNodes[1].checked = !this.checked;
-                        showAlert('danger', 'No permissions are configured', 5000);   
-                    }                      
-                ">
-            <label class="title-label" style="font-size: 1.2vw; padding-left: 30px;"></label> 
+            <input type="text" style="width:100%; height:80%; font-size: 1.2vw; display: none;" oninput="this.value = this.value.replace(/[^0-9.]/g, '');" onblur="selectThreshold(this.value)" onkeydown="if (event.keyCode === 13) {selectThreshold(this.value);}">
         </div>  
-        <div style="position: absolute; display: flex; justify-content: start; align-items: center;">
+        <div style="position: absolute; display: flex; justify-content: start; align-items: center;" 
+            onclick="
+                if ((typeUser == 1) || (typeUser == 4))
+                {
+                    // define '999' is all message
+                    document.getElementById('note-sensor').name = 999;
+
+                    setTimeout(function() {
+                        document.getElementById('popup_enter_issue').style.visibility = 'visible';
+                        document.getElementById('issue_input').style.border = ''; 
+                        document.getElementById('issue_input').value = '';
+                        document.getElementById('issue_input').focus();                     
+                    }, 500);
+
+                    var obj = new Object();
+                    obj.type = 'Active-Popup';
+
+                    window.parent.postMessage(JSON.stringify(obj), '*');                             
+                }
+                else
+                {
+                    showAlert('danger', 'No permissions are configured', 5000);   
+                }                         
+            ">
             <textarea class="title-textarea" readonly></textarea> 
-        </div>             
+        </div>              
     </div>
 
     <div class="popup_enter" id="popup_enter_confirm">
 		<div class="popup_enter_background">
 			<div class="header_enter_confirm">
-				<p>XÁC MINH DANH TÍNH</p>
+				<p>VALIDATION OF IDENTITY</p>
 			</div>
 			<div class="content_enter_confirm">
 				<div class="popup_device_info">
-					<p><span>* </span>Mật khẩu </p>
+					<p><span>* </span>Password </p>
 				</div>
 				<div class="popup_device_info">
-					<input placeholder="Nhập mật khẩu" type="password" name="PASSWORD_input" id="PASSWORD_input" onfocus = "this.style.border = ''" onkeydown="if (event.keyCode === 13) {confirmPopup('PASSWORD_input');}">
+					<input placeholder="Enter Password" type="password" name="PASSWORD_input" id="PASSWORD_input" onfocus = "this.style.border = ''" onkeydown="if (event.keyCode === 13) {confirmPopup('PASSWORD_input');}">
 				</div>
 			</div>
 			<div class="btn_new_folder">
-				<button class="btn_cancel" onclick="cancelPopup(document.getElementById('popup_enter_confirm'))">Hủy bỏ</button>
-				<button class="btn_confirm" onclick="confirmPopup('PASSWORD_input');">Xác nhận</button></button>
+				<button class="btn_cancel" onclick="cancelPopup(document.getElementById('popup_enter_confirm'))">Cancel</button>
+				<button class="btn_confirm" onclick="confirmPopup('PASSWORD_input');">Confirm</button></button>
 			</div>
 		</div>
 	</div>	
@@ -199,19 +199,19 @@
     <div class="popup_enter" id="popup_enter_notify">
 		<div class="popup_enter_background">
 			<div class="header_enter_notify">
-				<p>THÔNG TIN VỊ TRÍ</p>
+				<p>LOCATION DETAILS</p>
 			</div>
 			<div class="content_enter_confirm">
 				<div class="popup_device_info">
-					<p><span>* </span>Ghi chú </p>
+					<p><span>* </span>Note </p>
 				</div>
 				<div class="popup_device_info">
-					<input placeholder="Nhập ghi chú" type="text" id="notify_input" onfocus = "this.style.border = ''" onkeydown="if (event.keyCode === 13) {confirmPopup('notify_input');}">
+					<input placeholder="Enter Note" type="text" id="notify_input" onfocus = "this.style.border = ''" onkeydown="if (event.keyCode === 13) {confirmPopup('notify_input');}">
 				</div>
 			</div>
 			<div class="btn_new_folder">
-                <button class="btn_cancel" onclick="cancelPopup(document.getElementById('popup_enter_notify'))">Hủy bỏ</button>
-				<button class="btn_confirm" onclick="confirmPopup('notify_input');">Xác nhận</button>
+                <button class="btn_cancel" onclick="cancelPopup(document.getElementById('popup_enter_notify'))">Cancel</button>
+				<button class="btn_confirm" onclick="confirmPopup('notify_input');">Confirm</button>
 			</div>
 		</div>
 	</div>	
@@ -219,19 +219,19 @@
     <div class="popup_enter" id="popup_enter_issue">
 		<div class="popup_enter_background">
 			<div class="header_enter_confirm">
-				<p>THÔNG TIN SỰ CỐ</p>
+				<p>ACCIDENT DETAILS</p>
 			</div>
 			<div class="content_enter_confirm">
 				<div class="popup_device_info">
-					<p><span>* </span>Ghi chú </p>
+					<p><span>* </span>Note </p>
 				</div>
 				<div class="popup_device_info">
-					<input placeholder="Nhập ghi chú" type="text" id="issue_input" onfocus = "this.style.border = ''" onkeydown="if (event.keyCode === 13) {confirmPopup('issue_input');}">
+					<input placeholder="Enter Note" type="text" id="issue_input" onfocus = "this.style.border = ''" onkeydown="if (event.keyCode === 13) {confirmPopup('issue_input');}">
 				</div>
 			</div>
 			<div class="btn_new_folder">
-				<button class="btn_cancel" onclick="cancelPopup(document.getElementById('popup_enter_issue'))">Hủy bỏ</button>
-				<button class="btn_confirm" onclick="confirmPopup('issue_input');">Xác nhận</button>
+				<button class="btn_cancel" onclick="cancelPopup(document.getElementById('popup_enter_issue'))">Cancel</button>
+				<button class="btn_confirm" onclick="confirmPopup('issue_input');">Confirm</button>
 			</div>
 		</div>
 	</div>	
@@ -239,19 +239,19 @@
     <div class="popup_enter" id="popup_chart">
 		<div class="popup_enter_background" style="width:100%; height:100vh; margin-top: 0%; background-color: transparent; position: relative;">
 			<div class="row-temp" id="row-function">
-				<label for="dateInput">Thời gian: </label>
+				<label for="dateInput">Date: </label>
 				<input type="date" id="dateInput" style="margin-left: 10px;">
 				<a href="#" class="filterButton" onclick="requestDataToDrawChart(new Date(document.getElementById('dateInput').value));">
 					<img src="./img/search-icon.png" width="16" height="16" alt="Icon" style="padding-right:5px; ">
-					Tìm kiếm
+					Search
 				</a>
 				<a href="#" class="downButton" onclick="downloadFunction()">
 					<img src="./img/down-icon.png" width="16" height="16" alt="Icon" style="padding-right:5px; ">
-					Lưu trữ
+					Download
 				</a> 
 				<a href="#" class="closeButton" onclick="cancelPopup(document.getElementById('popup_chart'));">
 					<img src="./img/delete-icon.png" width="16" height="16" alt="Icon" style="padding-right:5px; ">
-					Kết thúc
+					Close
 				</a>                                     				
 			</div>		
 			<canvas id="myChart" style="background-color: transparent; display: block;"></canvas>
@@ -362,12 +362,10 @@
             window.parent.postMessage(JSON.stringify(obj), '*');    
         }
 
-        function selectThreshold()
+        function selectThreshold(value)
         {
-            document.getElementById('title').childNodes[5].childNodes[1].style.display = '';
-            document.getElementById('title').childNodes[5].childNodes[3].style.display = 'none';   
-
-            if(this.value !==''){
+            if ((value.length > 0) && (document.getElementById('title').childNodes[5].childNodes[1].style.display.localeCompare('none') == 0))
+            {                
                 m_timeUpdate = Math.floor(new Date().getTime() / 1000);
                 m_threshold = parseInt(document.getElementById('title').childNodes[5].childNodes[3].value);
                 document.getElementById('title').childNodes[5].childNodes[1].innerHTML = Math.floor(m_threshold / 10)  + '.' + m_threshold % 10 + ' &deg; C';
@@ -376,9 +374,13 @@
                 obj.type        = 'Request-Threshold';
                 obj.location    = document.body.className.split('_')[1];
                 obj.value       = m_threshold;
+                obj.user        = sessionStorage.getItem('username');
 
                 window.parent.postMessage(JSON.stringify(obj), '*');                         
-            }
+            }    
+            
+            document.getElementById('title').childNodes[5].childNodes[1].style.display = '';
+            document.getElementById('title').childNodes[5].childNodes[3].style.display = 'none';               
         }
 
         function confirmPopup(target)
@@ -403,6 +405,7 @@
                     obj.location     = document.body.className.split('_')[1];
                     obj.value        = document.getElementById('issue_input').value;
                     obj.slot         = document.getElementById('note-sensor').name
+                    obj.user         = sessionStorage.getItem('username');
 
                     window.parent.postMessage(JSON.stringify(obj), '*');
                     
@@ -418,13 +421,21 @@
                 }
                 else
                 {
-                    var obj = new Object();
-                    obj.type         = 'Request-Notify';
-                    obj.location     = document.body.className.split('_')[1];
-                    obj.value        = document.getElementById('notify_input').value;
-                    obj.slot         = document.getElementById('note-sensor').name
+                    if (document.getElementById('notify_input').value.indexOf('_') !== -1)
+                    {
+                        showAlert('danger', 'Contains no characters \'_\'', 3000);
+                    }
+                    else
+                    {
+                        var obj = new Object();
+                        obj.type         = 'Request-Notify';
+                        obj.location     = document.body.className.split('_')[1];
+                        obj.value        = document.getElementById('notify_input').value;
+                        obj.slot         = document.getElementById('note-sensor').name
+                        obj.user         = sessionStorage.getItem('username');
 
-                    window.parent.postMessage(JSON.stringify(obj), '*');
+                        window.parent.postMessage(JSON.stringify(obj), '*');
+                    }
                     
                     cancelPopup(document.getElementById('popup_enter_notify'));               
                 }       
@@ -478,6 +489,13 @@
 
                 document.getElementById("context-menu").style.top = element.offsetTop + "px";
                 document.getElementById("context-menu").style.left = element.offsetLeft + "px";
+                if(m_widthImg > 0 && m_heightImg > 0 && m_bodyWidth > 0 && m_bodyHeight > 0)
+                {
+                    if ((element.offsetTop + 136) > m_bodyHeight)
+                    {
+                        document.getElementById("context-menu").style.top = (element.offsetTop - 136) + "px";
+                    }
+                }
 
                 document.getElementById("context-menu").style.display = "";
             }            
@@ -549,8 +567,8 @@
 
                 document.getElementById("EB_lo_" + sensor).style.width = normalize(100, width_Img, bodyWidth) + 'px';
                 document.getElementById("EB_lo_" + sensor).style.height = normalize(140, height_Img, bodyHeight) + 'px';
-                document.getElementById("EB_lo_" + sensor).style.top = normalize(1280, height_Img, bodyHeight) + 'px';
-                document.getElementById("EB_lo_" + sensor).style.left = normalize(1722 + sensor * (18 + 100), width_Img, bodyWidth) + 'px';
+                document.getElementById("EB_lo_" + sensor).style.top = normalize(940, height_Img, bodyHeight) + 'px';
+                document.getElementById("EB_lo_" + sensor).style.left = normalize(1640 + sensor * (18 + 100), width_Img, bodyWidth) + 'px';
                 document.getElementById("EB_lo_" + sensor).innerHTML = "Lo." + sensor + "<br>" + Math.floor(sensor_value / 10)  + "." + sensor_value % 10;            
                 document.getElementById("EB_lo_" + sensor).classList.add("line-visible");
 
@@ -595,34 +613,22 @@
                 document.getElementById('title').childNodes[5].childNodes[1].innerHTML = Math.floor(m_threshold / 10)  + "." + m_threshold % 10 + " &deg; C";
                 document.getElementById('title').childNodes[5].childNodes[1].name = m_threshold;
             }            
-            
-            document.getElementById('title').childNodes[7].style.height = normalize(60, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[7].style.width = normalize(630, width_Img, bodyWidth) + 'px';
-            document.getElementById('title').childNodes[7].style.top = normalize(132, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[7].style.left = normalize(0, width_Img, bodyWidth) + 'px';
-            // Active update after 4 seconds
-            if ((epochCurrentSeconds - m_timeUpdate) > 4)
-            {
-                document.getElementById('title').childNodes[7].childNodes[1].checked = m_warningFlag;
-            }
-                
-            document.getElementById('title').childNodes[7].childNodes[3].textContent = "Notification of errors";
 
-            document.getElementById('title').childNodes[9].style.height = normalize(90, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[9].style.width = normalize(632, width_Img, bodyWidth) + 'px';
-            document.getElementById('title').childNodes[9].style.top = normalize(204, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[9].style.left = normalize(0, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[7].style.height = normalize(168, height_Img, bodyHeight) + 'px';
+            document.getElementById('title').childNodes[7].style.width = normalize(630, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[7].style.top = normalize(134, height_Img, bodyHeight) + 'px';
+            document.getElementById('title').childNodes[7].style.left = normalize(0, width_Img, bodyWidth) + 'px';
 
             // Clean textArea
-            while (document.getElementById('title').childNodes[9].childNodes[1].firstChild) {
-                document.getElementById('title').childNodes[9].childNodes[1].removeChild(document.getElementById('title').childNodes[9].childNodes[1].firstChild);
+            while (document.getElementById('title').childNodes[7].childNodes[1].firstChild) {
+                document.getElementById('title').childNodes[7].childNodes[1].removeChild(document.getElementById('title').childNodes[7].childNodes[1].firstChild);
             }                
 
             for(var i = 0; i < m_issue.length; i++)
             {
                 if (m_issue[i].length > 0)
                 {
-                    document.getElementById('title').childNodes[9].childNodes[1].appendChild(document.createTextNode(m_issue[i]));                        
+                    document.getElementById('title').childNodes[7].childNodes[1].appendChild(document.createTextNode(m_issue[i]));                        
                 }
             }
 
@@ -631,15 +637,15 @@
             {
                 if(m_issue[i] !== m_issueTemp[i])
                 {
-                    document.getElementById('title').childNodes[9].childNodes[1].scrollTop = document.getElementById('title').childNodes[9].childNodes[1].scrollHeight;
+                    document.getElementById('title').childNodes[7].childNodes[1].scrollTop = document.getElementById('title').childNodes[7].childNodes[1].scrollHeight;
                     m_issueTemp = m_issue;
                     break;
                 }
             }
 
-            if(document.getElementById('title').childNodes[9].childNodes[1].childNodes.length == 0)
+            if(document.getElementById('title').childNodes[7].childNodes[1].childNodes.length == 0)
             {
-                document.getElementById('title').childNodes[9].childNodes[1].textContent = "No data";
+                document.getElementById('title').childNodes[7].childNodes[1].textContent = "No data";
             }           
 
             // Out site
@@ -683,13 +689,14 @@
                             var index = context.dataIndex;
                             var value = context.dataset.data[index];
                             return (value * 10) > m_threshold ? 'red' : 'rgba(0,0,255,1.0)';
-                        }                
+                        },
+                        pointRadius: 1 // Kích thước của các điểm                 
                     }]
                 },
                 options: {
                     title: {
                         display: true,
-                        text: 'BIỂU ĐỒ BIẾN ĐỘNG NHIỆT ĐỘ',
+                        text: 'TEMPERATURE FLUCTUATION CHART',
                         fontSize: 26
                     },                    
                     legend: {display: false},
@@ -697,7 +704,7 @@
                         xAxes: [{
                             scaleLabel: {
                                 display: true,
-                                labelString: "Thời gian (s)",
+                                labelString: "Time (hh:mm)",
                                 fontSize: 20
                             },
                             ticks: {
@@ -714,13 +721,13 @@
                         yAxes: [{
                             scaleLabel: {
 								display: true,
-								labelString: 'Nhiệt độ cảm biến (\u00B0C)',
+								labelString: 'Temperature (\u00B0C)',
                                 fontSize: 20
                             },
 							ticks: {
 								// Thiết lập giới hạn tối thiểu và tối đa của trục y
 								suggestedMin: -10, // Giá trị tối thiểu của trục y
-								suggestedMax: 60, // Giá trị tối đa của trục y
+								suggestedMax: 40, // Giá trị tối đa của trục y
 							}							
                         }]
                     },
@@ -737,7 +744,7 @@
                             },
                             label: function(tooltipItem, data) {
                                 // Định dạng nội dung của tooltip
-                                return 'Nhiệt độ: ' + tooltipItem.yLabel + '\u00B0C';
+                                return 'Temperature: ' + tooltipItem.yLabel + '\u00B0C';
                             }
                         }
                     }
@@ -1032,9 +1039,7 @@
                     (e.target == document.getElementById("popup_chart"))) {
                         cancelPopup(e.target);
                 }				
-            });
-
-            document.getElementById('title').childNodes[9].childNodes[1].checked = false;                      
+            });                    
         });
 
     </script> 

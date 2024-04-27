@@ -7,7 +7,7 @@
     <link rel="shortcut icon" href="#">
     <link rel="stylesheet" type="text/css" href="./css/login_page.css?v=1.0.3">
     <script src="js/jquery.min.js"></script>
-    <script src="./js/common.js?v1.0"></script>
+    <script src="./js/common.js?v1.0.1"></script>
 
     <script>
         let timeoutMainProcess = 0;
@@ -60,7 +60,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="TBG_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="TBG_outsite">
@@ -84,7 +84,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="HLG_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>
     <div class="div-area" id="HLG_outsite">
@@ -108,7 +108,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="HDG_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>		
     <div class="div-area" id="HDG_outsite">
@@ -132,7 +132,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="TNN_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>
     <div class="div-area" id="TNN_outsite">
@@ -156,7 +156,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="DNG_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>		
     <div class="div-area" id="DNG_outsite">
@@ -180,7 +180,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="DLT_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="DLT_outsite">
@@ -204,7 +204,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="DAN_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>		
     <div class="div-area" id="DAN_outsite">
@@ -228,7 +228,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="NTT_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="NTT_outsite">
@@ -252,7 +252,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="MTO_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="MTO_outsite">
@@ -276,7 +276,7 @@
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>	
     <div class="div-area" id="CTO_EB_label">
-        <label class="transparent-label" style="font-size: 1.2vw;">EB</label>
+        <label class="transparent-label" style="font-size: 1.2vw;">HYPER</label>
 		<label class="transparent-label" style="color: white;"><span>0.0 &deg; C</span>&nbsp - &nbsp<span>0.0 &deg; C</span></label>
     </div>
     <div class="div-area" id="CTO_outsite">
@@ -1002,28 +1002,26 @@
                                     sensor_in = min_EB;                                
                                 element_label.childNodes[3].innerHTML = "Inside: " + Math.floor(sensor_in / 10)  + "." + sensor_in % 10 + "&deg;C - Outside: " + Math.floor(sensor_out / 10)  + "." + sensor_out % 10 + "&deg;C";
                             
-                                // Update status warning
-                                if (msg.data.locations[i][1])
-                                    document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Temperature breakdown";
-                                else
-                                    document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Normal temperature";
+                                // Update status warning to idle state
+                                document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Normal temperature";
 
                                 // Only Warning from 8h -> 22h
-                                if (false || (8 <= currentTime.getHours() && currentTime.getHours() <= 22))
+                                if (false || (8 <= currentTime.getHours() && currentTime.getHours() < 22))
                                 {
                                     var flagIgnore = false;
                                     for(var j = 0; j < (msg.data.locations[i][3].length - 1); j++)
                                     {                                        
-                                        if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][3][j] >= 300))
+                                        if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][3][j] >= (msg.data.locations[i][2] + 20)))
                                         {
                                             if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
                                                 document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
                                             if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
                                                 document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("overload")
 
+                                            document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerHTML = "Temperature breakdown (" + Math.floor((msg.data.locations[i][2] + 20) / 10)  + "." + (msg.data.locations[i][2] + 20) % 10 + "&deg;C" + ")";
                                             break;
                                         }
-                                        else if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (280 < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 300))
+                                        else if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][2] < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < (msg.data.locations[i][2] + 20)))
                                         {
                                             if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
                                                 document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("middle")                                                
