@@ -1018,7 +1018,7 @@
                                             if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
                                                 document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("overload")
 
-                                            document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerHTML = "Temperature breakdown (" + Math.floor((msg.data.locations[i][2] + 20) / 10)  + "." + (msg.data.locations[i][2] + 20) % 10 + "&deg;C" + ")";
+                                            document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerHTML = "Warning level: " + Math.floor((msg.data.locations[i][2] + 20) / 10)  + "." + (msg.data.locations[i][2] + 20) % 10 + "&deg;C";
                                             break;
                                         }
                                         else if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][2] < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < (msg.data.locations[i][2] + 20)))

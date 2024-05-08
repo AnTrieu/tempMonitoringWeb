@@ -14,8 +14,8 @@
     <script src="js/xlsx.full.min.js"></script>
 
     <script>
-        const MALL_pos = [[961, 865], [1376, 904], [1430, 800], [1456, 1142], [2130, 400]];
-        const EB_pos = [[1518, 140], [1518, 305], [1686, 285], [1819, 285], [1819, 124]];
+        const MALL_pos = [[1760, 400], [2130, 400], [1376, 904], [961, 865], [1456, 1142]];
+        const EB_pos = [ [1819, 285], [1518, 305], [1686, 285], [1518, 140], [1819, 124]];
         
         let m_widthImg = -1;
         let m_heightImg = -1;
@@ -545,7 +545,7 @@
                 document.getElementById("MALL_circle_" + sensor).style.left = normalize(MALL_pos[sensor - 1][0], width_Img, bodyWidth) + 'px'; 
                 document.getElementById("MALL_circle_" + sensor).classList.add("line-visible"); 
  
-                var top = -35, left = 20;
+                var top = 10, left = -50;
                 document.getElementById("MALL_final_" + sensor).style.top = normalize(MALL_pos[sensor - 1][1] + top, height_Img, bodyHeight) + 'px'; 
                 document.getElementById("MALL_final_" + sensor).style.left = normalize(MALL_pos[sensor - 1][0] + left, width_Img, bodyWidth) + 'px'; 
                 document.getElementById("MALL_final_" + sensor).childNodes[1].innerHTML = Math.floor(sensor_value / 10)  + "." + sensor_value % 10 + " &deg; C";                
@@ -575,7 +575,7 @@
                 document.getElementById("EB_circle_" + sensor).style.left = normalize(EB_pos[sensor - 1][0], width_Img, bodyWidth) + 'px'; 
                 document.getElementById("EB_circle_" + sensor).classList.add("line-visible"); 
 
-                var top = 20; left = -50;                         
+                var top = 10; left = -50;                         
                 document.getElementById("EB_final_" + sensor).style.top = normalize(EB_pos[sensor - 1][1] + top, height_Img, bodyHeight) + 'px'; 
                 document.getElementById("EB_final_" + sensor).style.left = normalize(EB_pos[sensor - 1][0] + left, width_Img, bodyWidth) + 'px';
                 document.getElementById("EB_final_" + sensor).childNodes[1].innerHTML = Math.floor(sensor_value / 10)  + "." + sensor_value % 10 + " &deg; C"; 

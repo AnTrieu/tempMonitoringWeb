@@ -215,6 +215,8 @@ class SQLiteDB(threading.Thread):
                 # Lấy message từ hàng đợi
                 message = self.message_queue.get(timeout=1)
 
+                # logging.info("-----> Step: Process Queue Store Data [Begin]")
+                
                 if message['type'] == "Store_data":
                     for location in message['data']['locations']:
                         self.insert_data(location[0] + "_data", [message['timestamp'], '_'.join(map(str, location[3]))])
@@ -228,16 +230,18 @@ class SQLiteDB(threading.Thread):
                         for device in device_list:
                             if ("clientID" in payload_json) and ("raw_data" in payload_json) and (device[0] == payload_json['clientID']):
 
-                                # Semaphore
-                                device_list_lock.acquire()
+                                try:
+                                    # Semaphore
+                                    device_list_lock.acquire()
 
-                                # if device[2] == "TNN":
-                                #     logging.info(payload_json)
+                                    device[3] = payload_json['raw_data']
+                                    device[4] = current_epoch_time
+                                    
+                                    device_list_lock.release()
 
-                                device[3] = payload_json['raw_data']
-                                device[4] = current_epoch_time
-                                
-                                device_list_lock.release()
+                                except Exception as e:
+                                    device_list_lock.release()
+                                    logging.error("Update data sensor error: {}".format(e))                                    
                                 
                     elif message['topic'] == sub_topic[1]:
                         if 'location' in payload_json:
@@ -328,6 +332,8 @@ class SQLiteDB(threading.Thread):
                         elif payload_json['type'] == "Set-Locations":
                             self.insert_or_update_table("Location_Info", [str(payload_json['user']), '_'.join(map(str, payload_json['locations']))])
 
+                # logging.info("-----> Step: Process Queue Store Data [End]")
+
             except queue.Empty:
                 pass 
             except Exception as e:
@@ -363,7 +369,7 @@ class MQTTThread(threading.Thread):
             elif rc == 5:
                 logging.info("Not authorised ...")
 
-            mqtt_thread.running = False
+            self.running = False
 
     # Hàm xử lý sự kiện khi client bị ngắt kết nối
     def on_disconnect(self, client, userdata, rc):
@@ -405,13 +411,19 @@ class MQTTThread(threading.Thread):
             try:
                 message = self.pub_queue.get(timeout=1)
                 
-                device_list_lock.acquire()
-                
-                self.client.publish(message["topic"], json.dumps(message["payload"]))
-                
-                device_list_lock.release()
+                # logging.info("-----> Step: Process Queue Publish Data" + str(message))
+                if (message["topic"] is not None):
+                    device_list_lock.acquire()
+                    
+                    self.client.publish(message["topic"], json.dumps(message["payload"]))
+                    
+                    device_list_lock.release()
             except queue.Empty:
                 pass          
+            except Exception as e:
+                device_list_lock.release()
+                logging.error("Main loop MQTT: {}".format(e))
+
 
         self.client.disconnect()
 
@@ -472,12 +484,17 @@ if __name__ == "__main__":
                 for device in device_list:
                     # Device not response after 5s
                     if (device[4] > 0 and ((int(query_time) - device[4]) > 5)):
-                        # Semaphore
-                        device_list_lock.acquire()
+                        try:
+                            # Semaphore
+                            device_list_lock.acquire()
 
-                        device[3].clear()
+                            device[3].clear()
 
-                        device_list_lock.release()
+                            device_list_lock.release()
+
+                        except Exception as e:
+                            device_list_lock.release()
+                            logging.error("Clean data sensor error: {}".format(e))    
 
                     # Get data device
                     pub_queue.put({
@@ -496,50 +513,55 @@ if __name__ == "__main__":
                         schedule.run_pending() 
                         notify_time = time.time()
 
-                        # Semaphore
-                        device_list_lock.acquire()
+                        try:
+                            # Semaphore
+                            device_list_lock.acquire()
 
-                        # Tạo một từ điển với key là location và value là danh sách các thiết bị tương ứng
-                        location_dict = defaultdict(list)
-                        for device in device_list:
-                            location_dict[device[2]].append(device)
+                            # Tạo một từ điển với key là location và value là danh sách các thiết bị tương ứng
+                            location_dict = defaultdict(list)
+                            for device in device_list:
+                                location_dict[device[2]].append(device)
 
-                        # In ra từ điển đã tạo                        
-                        for location, devices_filter in location_dict.items():
-                            if location in [location_detail[0] for location_detail in location_list]:
-                                index = None
+                            # In ra từ điển đã tạo                        
+                            for location, devices_filter in location_dict.items():
+                                if location in [location_detail[0] for location_detail in location_list]:
+                                    index = None
 
-                                # Find location in list
-                                for i, location_info in enumerate(location_list):
-                                    if location_info[0] == location:
-                                        index = i
-                                        break
+                                    # Find location in list
+                                    for i, location_info in enumerate(location_list):
+                                        if location_info[0] == location:
+                                            index = i
+                                            break
 
-                                # Reset buffer data
-                                if index is not None:
-                                    # logging.info(location_list[index][3])
-                                    location_list[index][3].clear()
-                                    location_list[index][3].extend([-65535] * 11)
+                                    # Reset buffer data
+                                    if index is not None:
+                                        # logging.info(location_list[index][3])
+                                        location_list[index][3].clear()
+                                        location_list[index][3].extend([-65535] * 11)
 
-                                    for slot, sensor_value in enumerate(location_list[index][3]):
-                                        
-                                        for device in devices_filter:                                            
-                                            slot_error = 0
+                                        for slot, sensor_value in enumerate(location_list[index][3]):
                                             
-                                            if device[3]:
-                                                # logging.info(str(slot) + " " + str(device[3][slot]))
-                                                if (65535 != device[3][slot]):
-                                                    slot_error += 1
-                                                    location_list[index][3][slot] = device[3][slot]
-                                                elif (65535 == device[3][slot]) and (location_list[index][3][slot] == -65535):
-                                                    location_list[index][3][slot] = device[3][slot]                                            
+                                            for device in devices_filter:                                            
+                                                slot_error = 0
+                                                
+                                                if device[3]:
+                                                    # logging.info(str(slot) + " " + str(device[3][slot]))
+                                                    if (65535 != device[3][slot]):
+                                                        slot_error += 1
+                                                        location_list[index][3][slot] = device[3][slot]
+                                                    elif (65535 == device[3][slot]) and (location_list[index][3][slot] == -65535):
+                                                        location_list[index][3][slot] = device[3][slot]                                            
 
-                                            # Setup sensor Wrong
-                                            if slot_error > 1:
-                                                logging.info("2 sensors in the same location: " + str(location))
-                                        
-                        device_list_lock.release()
+                                                # Setup sensor Wrong
+                                                if slot_error > 1:
+                                                    logging.info("2 sensors in the same location: " + str(location))
+                                            
+                            device_list_lock.release()
 
+                        except Exception as e:
+                            device_list_lock.release()
+                            logging.error("Publish data sensor error: {}".format(e))   
+                                               
                         # Notify data device to Web (1s)
                         pub_queue.put({
                             "topic" : pub_topic[0],                            
@@ -553,6 +575,7 @@ if __name__ == "__main__":
                         })
                         
                     elif time.time() - query_time > 5.0:
+
                         # Store database
                         message_queue.put({
                             "timestamp": int(notify_time),
@@ -561,12 +584,15 @@ if __name__ == "__main__":
                             },
                             'type' : 'Store_data'
                         })
-                    
+                        # logging.info("-----> Step: Add Queue Store data")
+
                         break
 
             else:
+                logging.info("Waitting connect MQTT ...")
+
                 # not connect to MQTT broker
-                time.sleep(0.5)
+                time.sleep(2)
 
         except KeyboardInterrupt as e:
             logging.error(e)

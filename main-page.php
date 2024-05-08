@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="shortcut icon" href="#">
     <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.2">
-    <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.2">
+    <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.3">
     <script src="./js/stomp.js?v=1.0.0"></script>
     <script src="./js/login.js?v=1.0.0"></script>
     <script src="./js/jquery.min.js"></script>
@@ -256,7 +256,7 @@
                 obj.leader = sessionStorage.getItem("username");
                 obj.user = sessionStorage.getItem("username");
 
-                client.send("/topic/command_topic", {"content-type": "text/plain"}, JSON.stringify(obj));
+                client.send("/topic/command_topic", {"content-type": "text/plain"}, JSON.stringify(obj)); 
             }, 1000); 
 
             // Send to login page
@@ -485,7 +485,7 @@
 
                 window.parent.postMessage(JSON.stringify(obj), '*'); 
             });
-
+			
             var flag_Relogin = false;
             var page_current = sessionStorage.getItem('page_current');
             if (page_current != null)
