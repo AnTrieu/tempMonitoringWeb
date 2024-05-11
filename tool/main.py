@@ -555,7 +555,13 @@ if __name__ == "__main__":
                                                 # Setup sensor Wrong
                                                 if slot_error > 1:
                                                     logging.info("2 sensors in the same location: " + str(location))
-                                            
+
+                            # Sub 1*C Di An                           
+                            for i, location_info in enumerate(location_list):
+                                if location_info[0] == 'DAN' and location_info[3][5] > -65535 and location_info[3][5] < 65535:
+                                    location_info[3][5] -= 10
+                                    break
+
                             device_list_lock.release()
 
                         except Exception as e:

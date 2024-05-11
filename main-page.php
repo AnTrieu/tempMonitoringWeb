@@ -4,13 +4,14 @@
 <head>
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
     <link rel="shortcut icon" href="#">
-    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.2">
-    <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.3">
+    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.8">
+    <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.9">
     <script src="./js/stomp.js?v=1.0.0"></script>
     <script src="./js/login.js?v=1.0.0"></script>
     <script src="./js/jquery.min.js"></script>
-
+	
     <script>
         let timeoutLogin = -1;
         let timeoutLoginProcess = -1;
@@ -18,6 +19,7 @@
         let timestamp = -1;
         let typeUser = -1;
         let allow_location = [];
+        let connected = false;
     </script>
 </head>
 
@@ -42,7 +44,17 @@
         <label class="for-dropdown" for="dropdown" id="username-profile"></label>
         <div class="section-dropdown" id="section-dropdown" > 
             <a href="#" onclick="switch_user_form()" style="display: none;">Account</a>
-            <a href="#" onclick="logout_process()">Logout</a>
+            <a href="#" onclick="
+                
+                if (document.body.classList.contains('portraitClass')) {
+                    document.body.classList.remove('portraitClass');
+                }          
+
+                exitFullScreen();
+                logout_process();
+
+                connected = false;
+            ">Logout</a>
         </div>
     </div>
 
@@ -54,6 +66,43 @@
 
     <script>
         // Private function
+         function openFullScreen() {
+            var isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobileDevice) {
+                var elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) { /* Firefox */
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                    elem.msRequestFullscreen();
+                }  
+
+                var isPortrait = window.matchMedia("(orientation: portrait)").matches;
+                if (isPortrait && !document.body.classList.contains('portraitClass')) {
+                    document.body.classList.add('portraitClass');
+                }
+
+                //window.scrollTo(0, 1);
+            }      
+        }
+
+        function exitFullScreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+          
         function setTitleWeb(page_current)
         {
             if(page_current != null)
@@ -246,6 +295,7 @@
         function connected_cb() 
         {		
             console.log("Connected to server");
+            connected = true;
 
             // Set title
             setTitleWeb(sessionStorage.getItem('page_current'));
@@ -270,18 +320,28 @@
             var obj = new Object();
             obj.type = "Keep-Alive";
 
-            window.parent.postMessage(JSON.stringify(obj), '*');  
+            window.parent.postMessage(JSON.stringify(obj), '*'); 
+
+			openFullScreen();
         }   
 
         $(window).load(function() {
-            window.addEventListener('resize', function() {
-                
-                // Set vị tri back button
-                // if(document.getElementById("back-button").style.visibility != null)
-                // {                    
-                //     document.getElementById("back-button").style.left = (document.getElementById("user-profile").offsetLeft - 60) + "px";
-                // }
+            window.addEventListener("orientationchange", function() {
+                // Handle rotation event here
+                if (window.orientation === 0) {
+                    // Portrait orientation
+                    if (connected && !document.body.classList.contains('portraitClass')) {
+                        document.body.classList.add('portraitClass');
+                    }
+                } else {
+                    // Landscape orientation
+                    if (document.body.classList.contains('portraitClass')) {
+                        document.body.classList.remove('portraitClass');
+                    }
+                }
+            });
 
+            window.addEventListener('resize', function() {
                 if(sessionStorage.getItem('page_current').localeCompare("login_page") == 0)
                 {
                     setTimeout(function() {
@@ -360,6 +420,10 @@
                         sessionStorage.clear();
 
                         sessionStorage.setItem('page_current', 'login_page');
+
+                        if (document.body.classList.contains('portraitClass')) {
+                            document.body.classList.remove('portraitClass');
+                        }                        
                     }
                     else if (obj.type.localeCompare("Show-User-info") == 0)
                     {
