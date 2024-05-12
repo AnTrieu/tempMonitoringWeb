@@ -5,7 +5,7 @@
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="shortcut icon" href="#">
-    <link rel="stylesheet" type="text/css" href="./css/login_page.css?v=1.0.3">
+    <link rel="stylesheet" type="text/css" href="./css/login_page.css?v=1.0.14">
     <script src="js/jquery.min.js"></script>
     <script src="./js/common.js?v1.0.1"></script>
 
@@ -318,13 +318,20 @@
         {
             var img = new Image();
             img.src = document.body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
-            
+
             img.onload = function() {
+                var delta = 0;
+                var isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if(isMobileDevice)
+                {
+                    delta = 10;
+                }
+
                 var width_Img = img.width;
                 var height_Img = img.height;
                 var bodyWidth = document.body.clientWidth;
                 var bodyHeight = document.body.clientHeight;
-                // console.log(height_Img + " " + bodyHeight);
+
                 var width_map_label = normalize(290, width_Img, bodyWidth);
                 var height_map_label = normalize(72, height_Img, bodyHeight);
 
@@ -373,7 +380,7 @@
                 TBG_btn.style.visibility = "visible";
                 TBG_btn.style.width = width_button + "px"; 
                 TBG_btn.style.height = height_button + "px";                      
-                TBG_btn.style.top = normalize(169, height_Img, bodyHeight) + "px"; 
+                TBG_btn.style.top = normalize(169 - delta, height_Img, bodyHeight) + "px"; 
                 TBG_btn.style.left = normalize(1570, width_Img, bodyWidth) + "px";
 				
 				var TBG_EB_notify = document.getElementById("TBG_EB_notify");
@@ -417,7 +424,7 @@
                 HLG_btn.style.visibility = "visible";
                 HLG_btn.style.width = width_button + "px"; 
                 HLG_btn.style.height = height_button + "px";                      
-                HLG_btn.style.top = normalize(169, height_Img, bodyHeight) + "px"; 
+                HLG_btn.style.top = normalize(169 - delta, height_Img, bodyHeight) + "px"; 
                 HLG_btn.style.left = normalize(2099, width_Img, bodyWidth) + "px";    
 
 				var HLG_EB_notify = document.getElementById("HLG_EB_notify");
@@ -461,7 +468,7 @@
                 HDG_btn.style.visibility = "visible";
                 HDG_btn.style.width = width_button + "px"; 
                 HDG_btn.style.height = height_button + "px";                      
-                HDG_btn.style.top = normalize(433, height_Img, bodyHeight) + "px"; 
+                HDG_btn.style.top = normalize(433 - delta, height_Img, bodyHeight) + "px"; 
                 HDG_btn.style.left = normalize(1570, width_Img, bodyWidth) + "px";       
 
 				var HDG_EB_notify = document.getElementById("HDG_EB_notify");
@@ -505,7 +512,7 @@
                 TNN_btn.style.visibility = "visible";
                 TNN_btn.style.width = width_button + "px"; 
                 TNN_btn.style.height = height_button + "px";                      
-                TNN_btn.style.top = normalize(433, height_Img, bodyHeight) + "px"; 
+                TNN_btn.style.top = normalize(433 - delta, height_Img, bodyHeight) + "px"; 
                 TNN_btn.style.left = normalize(2099, width_Img, bodyWidth) + "px"; 
 
                 var TNN_EB_notify = document.getElementById("TNN_EB_notify");
@@ -549,7 +556,7 @@
                 DNG_btn.style.visibility = "visible";
                 DNG_btn.style.width = width_button + "px"; 
                 DNG_btn.style.height = height_button + "px";                      
-                DNG_btn.style.top = normalize(707, height_Img, bodyHeight) + "px"; 
+                DNG_btn.style.top = normalize(707 - delta, height_Img, bodyHeight) + "px"; 
                 DNG_btn.style.left = normalize(1570, width_Img, bodyWidth) + "px";
 
 				var DNG_EB_notify = document.getElementById("DNG_EB_notify");
@@ -593,7 +600,7 @@
                 DLT_btn.style.visibility = "visible";
                 DLT_btn.style.width = width_button + "px"; 
                 DLT_btn.style.height = height_button + "px";                      
-                DLT_btn.style.top = normalize(707, height_Img, bodyHeight) + "px"; 
+                DLT_btn.style.top = normalize(707 - delta, height_Img, bodyHeight) + "px"; 
                 DLT_btn.style.left = normalize(2099, width_Img, bodyWidth) + "px";
 
                 var DLT_EB_notify = document.getElementById("DLT_EB_notify");
@@ -637,7 +644,7 @@
                 DAN_btn.style.visibility = "visible";
                 DAN_btn.style.width = width_button + "px"; 
                 DAN_btn.style.height = height_button + "px";                      
-                DAN_btn.style.top = normalize(975, height_Img, bodyHeight) + "px"; 
+                DAN_btn.style.top = normalize(975 - delta, height_Img, bodyHeight) + "px"; 
                 DAN_btn.style.left = normalize(1570, width_Img, bodyWidth) + "px";
 
 				var DAN_EB_notify = document.getElementById("DAN_EB_notify");
@@ -681,7 +688,7 @@
                 NTT_btn.style.visibility = "visible";
                 NTT_btn.style.width = width_button + "px"; 
                 NTT_btn.style.height = height_button + "px";                      
-                NTT_btn.style.top = normalize(975, height_Img, bodyHeight) + "px"; 
+                NTT_btn.style.top = normalize(975 - delta, height_Img, bodyHeight) + "px"; 
                 NTT_btn.style.left = normalize(2099, width_Img, bodyWidth) + "px";    
                 
                 var NTT_EB_notify = document.getElementById("NTT_EB_notify");
@@ -725,7 +732,7 @@
                 MTO_btn.style.visibility = "visible";
                 MTO_btn.style.width = width_button + "px"; 
                 MTO_btn.style.height = height_button + "px";                      
-                MTO_btn.style.top = normalize(1240, height_Img, bodyHeight) + "px"; 
+                MTO_btn.style.top = normalize(1240 - delta, height_Img, bodyHeight) + "px"; 
                 MTO_btn.style.left = normalize(1570, width_Img, bodyWidth) + "px";
 
 				var MTO_EB_notify = document.getElementById("MTO_EB_notify");
@@ -769,7 +776,7 @@
                 CTO_btn.style.visibility = "visible";
                 CTO_btn.style.width = width_button + "px"; 
                 CTO_btn.style.height = height_button + "px";                      
-                CTO_btn.style.top = normalize(1240, height_Img, bodyHeight) + "px"; 
+                CTO_btn.style.top = normalize(1240 - delta, height_Img, bodyHeight) + "px"; 
                 CTO_btn.style.left = normalize(2099, width_Img, bodyWidth) + "px";
 
                 var CTO_EB_notify = document.getElementById("CTO_EB_notify");

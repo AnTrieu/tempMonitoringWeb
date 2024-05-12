@@ -1,10 +1,10 @@
 body {
-  width: 100%; /* Thiết lập chiều rộng của body là 100% của viewport */
+  width: 100vw; /* Thiết lập chiều rộng của body là 100% của viewport */
   height: 100vh; /* Thiết lập chiều cao của body là 100% của viewport height */
   margin: 0; /* Xóa margin mặc định */
   padding: 0; /* Xóa padding mặc định */  
   background-image: url('../img/background_theme_blur.png');
-  background-size: 100% 100%;
+  background-size: 100vw 100vh;
   background-repeat: no-repeat;
   /* Do not repeat the background image */
   background-attachment: fixed;
@@ -245,7 +245,7 @@ form input[type="button"] {
 .transparent-button {
   background: #0096FF;
 
-  font-size: 1.1vw;
+  font-size: 0.9vw;
   font-weight: bold;
   color: yellow;
   

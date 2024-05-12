@@ -7,7 +7,7 @@
 
     <link rel="shortcut icon" href="#">
     <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.13">
-    <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.9">
+    <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.14">
     <script src="./js/stomp.js?v=1.0.0"></script>
     <script src="./js/login.js?v=1.0.0"></script>
     <script src="./js/jquery.min.js"></script>
