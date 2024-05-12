@@ -73,8 +73,8 @@ body{
 .sec-center {
   visibility: hidden;
   position: fixed;
-  top: 10px;
-  right: 40px;
+  top: 5px;
+  right: 30px;
   max-width: 100%;
   text-align: center;
   z-index: 200;
@@ -172,15 +172,15 @@ body{
   position: relative;
   font-family: 'Roboto', sans-serif;
   font-weight: 500;
-  font-size: 15px;
+  font-size: min(1.5vw, 15px);
   line-height: 2;
-  height: 50px;
+  height: min(4vh, 50px);
   transition: all 200ms linear;
   border-radius: 20px;
   width: 100%;
   letter-spacing: 1px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 7px;
+  padding-right: 7px;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
@@ -684,7 +684,7 @@ a .uil {
 .popup_device_info {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 50%;
   justify-content: space-evenly;
   align-items: flex-start; /* Canh trái các phần tử con */
 }
@@ -778,7 +778,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/TBG_background.png');
+  background-image: url('../img/TBG_background.png?v=1.0.1');
   font-family: 'Arial'
 }
 
@@ -790,7 +790,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/DLT_background.png');
+  background-image: url('../img/DLT_background.png?v=1.0.1');
   font-family: 'Arial'   
 }
 
@@ -802,7 +802,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/DNG_background.png');  
+  background-image: url('../img/DNG_background.png?v=1.0.1');  
   font-family: 'Arial' 
 }
 
@@ -814,7 +814,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/HLG_background.png');  
+  background-image: url('../img/HLG_background.png?v=1.0.1');  
   font-family: 'Arial' 
 }
 
@@ -826,7 +826,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/HDG_background.png');
+  background-image: url('../img/HDG_background.png?v=1.0.1');
   font-family: 'Arial'   
 }
 
@@ -838,7 +838,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/NTT_background.png');
+  background-image: url('../img/NTT_background.png?v=1.0.1');
   font-family: 'Arial'   
 }
 
@@ -851,7 +851,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/TNN_background.png');  
+  background-image: url('../img/TNN_background.png?v=1.0.1');  
   font-family: 'Arial' 
 }
 
@@ -863,7 +863,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/DAN_background.png');   
+  background-image: url('../img/DAN_background.png?v=1.0.1');   
   font-family: 'Arial'
 }
 
@@ -875,7 +875,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/MTO_background.png');  
+  background-image: url('../img/MTO_background.png?v=1.0.1');  
   font-family: 'Arial' 
 }
 
@@ -887,7 +887,7 @@ a .uil {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;   
-  background-image: url('../img/CTO_background.png');  
+  background-image: url('../img/CTO_background.png?v=1.0.1');  
   font-family: 'Arial' 
 }
 

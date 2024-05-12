@@ -1047,6 +1047,18 @@
                                     if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
                                         document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")                                             
                                 }
+
+                                // Maintained warning
+                                if(msg.data.locations[i][1])
+                                {
+                                    if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                        document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("middle")                                                
+                                    if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                        document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")
+
+                                    // Update status maintained
+                                    document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "The system is being maintained";
+                                }
                             }
                         }
                     }

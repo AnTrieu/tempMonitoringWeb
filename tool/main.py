@@ -248,7 +248,15 @@ class SQLiteDB(threading.Thread):
                             for location in location_list:
                                 if(location[0] == payload_json['location']):
                                     logging.info("-> " + str(payload_json))
-                                    if payload_json['type'] == "Request-Threshold":
+
+                                    if payload_json['type'] == "Request-Warning-Flag":
+                                        if not payload_json['value'] is None: 
+                                            location[1] = payload_json['value']
+            
+                                            # Update database
+                                            self.update_table("General_Info", "is_warning = " + str(location[1]) + " WHERE location = \'" + str(location[0]) + "\'")
+
+                                    elif payload_json['type'] == "Request-Threshold":
                                         if not payload_json['value'] is None: 
                                             location[2] = payload_json['value']
             
@@ -271,6 +279,15 @@ class SQLiteDB(threading.Thread):
                                                 
                                             location[5] = location[5][1:]
                                         
+                                            self.update_table("General_Info", "issue = '" + '_'.join(map(str, location[5])) + "' WHERE location = \'" + str(location[0]) + "\'")
+
+                                    elif payload_json['type'] == "Request-Delete-Issue":
+                                        if not payload_json['user'] is None: 
+
+                                            # Clean data
+                                            location[5] = ['', '', '', '', '', '', '', '', '', '']
+
+                                            # Update database
                                             self.update_table("General_Info", "issue = '" + '_'.join(map(str, location[5])) + "' WHERE location = \'" + str(location[0]) + "\'")
 
                                     elif payload_json['type'] == "Request-Chart" and payload_json['slot'] > 0:
@@ -311,6 +328,7 @@ class SQLiteDB(threading.Thread):
                                             })                                        
                                     
                         elif payload_json['type'] == "Request-Location":
+                            # logging.info("-> " + str(payload_json))
                             data_location = []
 
                             rows = self.fetch_data("Location_Info", None)
@@ -330,6 +348,7 @@ class SQLiteDB(threading.Thread):
                             })  
 
                         elif payload_json['type'] == "Set-Locations":
+                            logging.info("-> " + str(payload_json))
                             self.insert_or_update_table("Location_Info", [str(payload_json['user']), '_'.join(map(str, payload_json['locations']))])
 
                 # logging.info("-----> Step: Process Queue Store Data [End]")

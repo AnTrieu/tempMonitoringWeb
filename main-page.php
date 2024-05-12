@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
     <link rel="shortcut icon" href="#">
-    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.8">
+    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.13">
     <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.9">
     <script src="./js/stomp.js?v=1.0.0"></script>
     <script src="./js/login.js?v=1.0.0"></script>
@@ -78,14 +78,12 @@
                     elem.webkitRequestFullscreen();
                 } else if (elem.msRequestFullscreen) { /* IE/Edge */
                     elem.msRequestFullscreen();
-                }  
+                }
 
                 var isPortrait = window.matchMedia("(orientation: portrait)").matches;
                 if (isPortrait && !document.body.classList.contains('portraitClass')) {
                     document.body.classList.add('portraitClass');
                 }
-
-                //window.scrollTo(0, 1);
             }      
         }
 
@@ -305,7 +303,7 @@
                 obj.type = 'Request-Location';
                 obj.leader = sessionStorage.getItem("username");
                 obj.user = sessionStorage.getItem("username");
-
+                // console.log(obj)
                 client.send("/topic/command_topic", {"content-type": "text/plain"}, JSON.stringify(obj)); 
             }, 1000); 
 
@@ -528,7 +526,8 @@
                     }
                     else if ((obj.type.localeCompare("Request-Warning-Flag") == 0)  ||
                              (obj.type.localeCompare("Request-Threshold") == 0)     ||
-                             (obj.type.localeCompare("Request-Notify") == 0)        || 
+                             (obj.type.localeCompare("Request-Notify") == 0)        ||
+                             (obj.type.localeCompare("Request-Delete-Issue") == 0) || 
                              (obj.type.localeCompare("Request-Issue") == 0)         ||
                              (obj.type.localeCompare("Request-Chart") == 0))
                     {

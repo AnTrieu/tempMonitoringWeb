@@ -7,10 +7,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="shortcut icon" href="#">
     <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.3">
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script src="./js/jquery.min.js"></script>
-    <script src="./js/common.js?v1.0.1"></script>
+    <script src="./js/common.js?v1.0.12"></script>
     <script src="js/xlsx.full.min.js"></script>
 
     <script>
@@ -34,6 +34,8 @@
         let myChart = null;
 
         let typeUser = -1;
+
+        let m_flagDeleteNotify = false;
     </script>
 </head>
 <body class="body_DNG">
@@ -44,18 +46,6 @@
 	</div>
 
     <label class="outsite-label" id="info_outsite"></label>
-    <div class="vertical-dashed-line" id="out_site_1"></div>
-    <div class="horizontal-dashed-line" id="out_site_2"></div>
-    <div class="vertical-dashed-line" id="out_site_3"></div>
-
-    <div class="vertical-dashed-line" id="MALL_main_2"></div>
-    <div class="horizontal-dashed-line" id="MALL_main_3"></div>
-    <div class="horizontal-dashed-line" id="MALL_main"></div>
-
-    <div class="horizontal-line"   id="EB_main_1"></div>
-    <div class="vertical-line" id="EB_main_2"></div>
-    <div class="horizontal-line" id="EB_main_3"></div>
-    <div class="vertical-line" id="EB_main"></div>
 
     <div id="context-menu" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; top: 100px; left: 500px; color: black;z-index: 2000;">
         <ul style="list-style: none; padding: 0; margin: 0;">
@@ -110,7 +100,7 @@
                     else
                     {
                         showAlert('danger', 'No permissions are configured', 5000);   
-                    }                              
+                    }                          
                 ">Report an issue</span></a></li>            
             <li><a href="#" id="action2" style="color: black; padding-left: 5px; display: flex; justify-content: start; align-items: center;"><img src="./img/history-icon.png" width="20px" height="20px" style="padding-right:5px; margin-right: 5px;"><span
                 onclick="requestDataToDrawChart(new Date());">Chart</span></a></li>
@@ -125,11 +115,12 @@
             <label class="title-label" style="font-size: 1.2vw;"></label> 
         </div>   
         <div style="position: absolute; display: flex; justify-content: center; align-items: center;">
-            <label class="title-label" style="font-size: 1.2vw;  cursor: pointer;" 
+            <label class="title-label" style="font-size: 1.2vw; cursor: pointer;" 
                 onclick="
                     if ((typeUser == 1) || (typeUser == 4))
                     {
                         setTimeout(function() {
+                            document.getElementById('popup_enter_confirm_header').innerText = 'VALIDATION OF IDENTITY';                            
                             document.getElementById('popup_enter_confirm').style.visibility = 'visible';
                             document.getElementById('PASSWORD_input').style.border = ''; 
                             document.getElementById('PASSWORD_input').value = '';
@@ -144,11 +135,58 @@
                     else
                     {
                         showAlert('danger', 'No permissions are configured', 5000);   
-                    }                 
+                    }                    
                 ">
             </label>
             <input type="text" style="width:100%; height:80%; font-size: 1.2vw; display: none;" oninput="this.value = this.value.replace(/[^0-9.]/g, '');" onblur="selectThreshold(this.value)" onkeydown="if (event.keyCode === 13) {selectThreshold(this.value);}">
-        </div> 
+        </div>
+        <div style="position: absolute; display: flex; justify-content: start; align-items: center;">
+            <input type="checkbox" style="left: 0px; opacity: 1; pointer-events: auto; width: 1.3vw; height: 1.3vw;" 
+                onclick="
+                    if ((typeUser == 1) || (typeUser == 4))
+                    {
+                        m_timeUpdate = Math.floor(new Date().getTime() / 1000);
+                        m_warningFlag = this.checked;
+
+                        var obj = new Object();
+                        obj.type        = 'Request-Warning-Flag';
+                        obj.location    = document.body.className.split('_')[1];
+                        obj.value       = m_warningFlag;
+
+                        window.parent.postMessage(JSON.stringify(obj), '*');                         
+                    } 
+                    else
+                    {
+                        document.getElementById('title').childNodes[7].childNodes[1].checked = !this.checked;
+                        showAlert('danger', 'No permissions are configured', 5000);   
+                    }                         
+                ">
+            <label class="title-label" style="font-size: 1.0vw; padding-left: calc(1.3vw + 20px);"></label> 
+        </div>
+        <div style="position: absolute; display: flex; justify-content: start; align-items: center;">
+            <img src="./img/email-delete-icon.png" style="width: 50%; height: 80%; cursor: pointer;"
+                onclick="
+                        if ((typeUser == 1) || (typeUser == 4))
+                        {
+                            setTimeout(function() {
+                                document.getElementById('popup_enter_confirm_header').innerText = 'DELETE MESSAGES';                            
+                                document.getElementById('popup_enter_confirm').style.visibility = 'visible';
+                                document.getElementById('PASSWORD_input').style.border = ''; 
+                                document.getElementById('PASSWORD_input').value = '';
+                                document.getElementById('PASSWORD_input').focus();
+                            }, 500);
+
+                            var obj = new Object();
+                            obj.type = 'Active-Popup';
+
+                            window.parent.postMessage(JSON.stringify(obj), '*');                        
+                        } 
+                        else
+                        {
+                            showAlert('danger', 'No permissions are configured', 5000);   
+                        }                    
+            ">            
+        </div>      
         <div style="position: absolute; display: flex; justify-content: start; align-items: center;" 
             onclick="
                 if ((typeUser == 1) || (typeUser == 4))
@@ -174,13 +212,13 @@
                 }                         
             ">
             <textarea class="title-textarea" readonly></textarea> 
-        </div>                
+        </div>             
     </div>
 
     <div class="popup_enter" id="popup_enter_confirm">
 		<div class="popup_enter_background">
 			<div class="header_enter_confirm">
-				<p>VALIDATION OF IDENTITY</p>
+                <p id="popup_enter_confirm_header"></p>
 			</div>
 			<div class="content_enter_confirm">
 				<div class="popup_device_info">
@@ -353,10 +391,10 @@
                 document.getElementById('row-function').style.visibility = 'hidden';
 
                 myChart.destroy();
-                myChart = null; 
+                myChart = null;
             }    
             element.style.visibility = 'hidden';
-            
+
             var obj = new Object();
             obj.type = 'Deactive-Popup';
 
@@ -453,11 +491,27 @@
                     var password = sessionStorage.getItem('password');
 
                     if(password != null && (document.getElementById('PASSWORD_input').value.localeCompare(password) == 0))
-                    {	                    
-                        document.getElementById('title').childNodes[5].childNodes[1].style.display = 'none';
-                        document.getElementById('title').childNodes[5].childNodes[3].style.display = '';
-                        document.getElementById('title').childNodes[5].childNodes[3].value = document.getElementById('title').childNodes[5].childNodes[1].name;
-                        document.getElementById('title').childNodes[5].childNodes[3].focus();
+                    {	        
+                        var header = document.getElementById('popup_enter_confirm_header').innerText;
+                        
+                        if (header.localeCompare('VALIDATION OF IDENTITY') == 0)
+                        {
+                            document.getElementById('title').childNodes[5].childNodes[1].style.display = 'none';
+                            document.getElementById('title').childNodes[5].childNodes[3].style.display = '';
+                            document.getElementById('title').childNodes[5].childNodes[3].value = document.getElementById('title').childNodes[5].childNodes[1].name;
+                            document.getElementById('title').childNodes[5].childNodes[3].focus();
+                        }
+                        else if (header.localeCompare('DELETE MESSAGES') == 0)
+                        {
+                            var obj = new Object();
+                            obj.type        = 'Request-Delete-Issue';
+                            obj.location    = document.body.className.split('_')[1];
+                            obj.user        = sessionStorage.getItem('username');
+
+                            window.parent.postMessage(JSON.stringify(obj), '*');   
+
+                            m_flagDeleteNotify = true;
+                        }
                     }
                     else
                     {
@@ -628,23 +682,42 @@
             {
                 document.getElementById('title').childNodes[5].childNodes[1].innerHTML = Math.floor(m_threshold / 10)  + "." + m_threshold % 10 + " &deg; C";
                 document.getElementById('title').childNodes[5].childNodes[1].name = m_threshold;
-            }            
+            }         
 
-            document.getElementById('title').childNodes[7].style.height = normalize(168, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[7].style.width = normalize(630, width_Img, bodyWidth) + 'px';
-            document.getElementById('title').childNodes[7].style.top = normalize(134, height_Img, bodyHeight) + 'px';
+            /* Request flag */
+            document.getElementById('title').childNodes[7].style.height = normalize(60, height_Img, bodyHeight) + 'px';
+            document.getElementById('title').childNodes[7].style.width = normalize(530, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[7].style.top = normalize(132, height_Img, bodyHeight) + 'px';
             document.getElementById('title').childNodes[7].style.left = normalize(0, width_Img, bodyWidth) + 'px';
+            // Active update after 4 seconds
+            if ((epochCurrentSeconds - m_timeUpdate) > 4)
+            {
+                document.getElementById('title').childNodes[7].childNodes[1].checked = m_warningFlag;
+            }                
+            document.getElementById('title').childNodes[7].childNodes[3].textContent = "The system is being maintained";
+
+            /* Delete Message */
+            document.getElementById('title').childNodes[9].style.height = normalize(60, height_Img, bodyHeight) + 'px';
+            document.getElementById('title').childNodes[9].style.width = normalize(100, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[9].style.top = normalize(132, height_Img, bodyHeight) + 'px';
+            document.getElementById('title').childNodes[9].style.left = normalize(530, width_Img, bodyWidth) + 'px';
+
+            /* Textarea */
+            document.getElementById('title').childNodes[11].style.height = normalize(80, height_Img, bodyHeight) + 'px';
+            document.getElementById('title').childNodes[11].style.width = normalize(630, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[11].style.top = normalize(210, height_Img, bodyHeight) + 'px';
+            document.getElementById('title').childNodes[11].style.left = normalize(0, width_Img, bodyWidth) + 'px';
 
             // Clean textArea
-            while (document.getElementById('title').childNodes[7].childNodes[1].firstChild) {
-                document.getElementById('title').childNodes[7].childNodes[1].removeChild(document.getElementById('title').childNodes[7].childNodes[1].firstChild);
+            while (document.getElementById('title').childNodes[11].childNodes[1].firstChild) {
+                document.getElementById('title').childNodes[11].childNodes[1].removeChild(document.getElementById('title').childNodes[11].childNodes[1].firstChild);
             }                
 
             for(var i = 0; i < m_issue.length; i++)
             {
                 if (m_issue[i].length > 0)
                 {
-                    document.getElementById('title').childNodes[7].childNodes[1].appendChild(document.createTextNode(m_issue[i]));                        
+                    document.getElementById('title').childNodes[11].childNodes[1].appendChild(document.createTextNode(m_issue[i]));                        
                 }
             }
 
@@ -653,16 +726,26 @@
             {
                 if(m_issue[i] !== m_issueTemp[i])
                 {
-                    document.getElementById('title').childNodes[7].childNodes[1].scrollTop = document.getElementById('title').childNodes[7].childNodes[1].scrollHeight;
+                    document.getElementById('title').childNodes[11].childNodes[1].scrollTop = document.getElementById('title').childNodes[11].childNodes[1].scrollHeight;
                     m_issueTemp = m_issue;
                     break;
                 }
             }
 
-            if(document.getElementById('title').childNodes[7].childNodes[1].childNodes.length == 0)
+            if(document.getElementById('title').childNodes[11].childNodes[1].childNodes.length == 0)
             {
-                document.getElementById('title').childNodes[7].childNodes[1].textContent = "No data";
+                document.getElementById('title').childNodes[11].childNodes[1].textContent = "No data";
+
+                m_flagDeleteNotify = false;
             }           
+            else
+            {
+                if(m_flagDeleteNotify)
+                {
+                    showAlert('danger', 'Eliminate the unsuccessful message', 3000);
+                    m_flagDeleteNotify = false;
+                }                
+            }
 
             // Out site
             draw_onsite(width_Img, height_Img, bodyWidth, bodyHeight);
@@ -894,7 +977,7 @@
                                     m_issue         = msg.data.locations[i][5]; 
 
                                     for(var j = 1; j <= m_temperate.length; j++)
-                                    {                                                                                  
+                                    {
                                         if (j <= EB_pos.length)
                                         {
                                             if(document.getElementById("EB_circle_" + j) == null)
@@ -903,7 +986,6 @@
                                             document.getElementById("EB_circle_" + j).name = msg.data.locations[i][4][j - 1]; 
                                             if ((-0xffff < m_temperate[j - 1]) && (m_temperate[j - 1] < 0xffff))
                                             {
-                                                // m_temperate[j - 1] -= 20;
                                                 if (!document.getElementById("EB_circle_" + j).classList.contains("online"))
                                                     document.getElementById("EB_circle_" + j).classList.add("online");    
                                                     
@@ -935,7 +1017,6 @@
 
                                             if ((-0xffff < m_temperate[j - 1]) && (m_temperate[j - 1] < 0xffff))
                                             {
-                                                // m_temperate[j - 1] -= 20;
                                                 if (!document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.contains("online"))
                                                     document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.add("online");
 
@@ -957,7 +1038,7 @@
                                                 if (document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.contains("warning"))
                                                     document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.remove("warning");                                                                                                       
                                             }
-                                        }                                                                                                                       
+                                        }                                                                                      
                                     }
                                     
                                     if(m_widthImg > 0 && m_heightImg > 0 && m_bodyWidth > 0 && m_bodyHeight > 0)
@@ -977,7 +1058,7 @@
                                 var item = new Set([msg.data.filter[i]['t'], msg.data.filter[i]['v'] <= -0xffff || msg.data.filter[i]['v'] >= 0xffff ? 0 : msg.data.filter[i]['v']]);
                                 data_chart.push(item);
                             }
-
+  
                             if (data_chart.length >= msg.length)
                             {
                                 clearTimeout(scheduleChart);
@@ -1038,14 +1119,14 @@
                                 myChart = null;
 
                                 drawChart();
-                            }            
-                                            
+                            }   
+                            
                             typeUser = obj.typeUser;
                         }
                         else if (obj.type.localeCompare("Update-Type-User") == 0)
                         {
                             typeUser = obj.typeUser;
-                        } 
+                        }                        
                     }
                 }
             });
@@ -1057,7 +1138,9 @@
                     (e.target == document.getElementById("popup_chart"))) {
                         cancelPopup(e.target);
                 }				
-            });                    
+            });    
+            
+            document.getElementById('title').childNodes[7].childNodes[1].checked = false;
         });
 
     </script> 

@@ -43,7 +43,7 @@ function selectLocation(user)
 {
     // Active loader
     document.getElementById("wait_div").style.visibility = 'visible'; 
-
+    console.log(user)
     var obj = new Object();
     obj.type = 'Request-Location';
     obj.leader = leader;
@@ -173,15 +173,15 @@ function showUser(page)
                             feature_cell.setAttribute("style", "width:15%;");
                             if (typeUser == 1)
                             {
-                                feature_cell.innerHTML =    "<a href=\"#\" class=\"assign\" title=\"Tọa độ\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
+                                feature_cell.innerHTML =    "<a href=\"#\" class=\"assign\" title=\"Location\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
                                                             "<a href=\"#\" class=\"reload\" title=\"Reset\" data-toggle=\"tooltip\" onclick=\'resetUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe86a;</i></a>" + 
-                                                            "<a href=\"#\" class=\"delete\" title=\"Xóa\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
+                                                            "<a href=\"#\" class=\"delete\" title=\"Delete\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
                             }
                             else
                             {
-                                feature_cell.innerHTML =    "<a href=\"#\" class=\"assign disable\" title=\"Tọa độ\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
+                                feature_cell.innerHTML =    "<a href=\"#\" class=\"assign disable\" title=\"Location\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
                                                             "<a href=\"#\" class=\"reload\" title=\"Reset\" data-toggle=\"tooltip\" onclick=\'resetUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe86a;</i></a>" + 
-                                                            "<a href=\"#\" class=\"delete\" title=\"Xóa\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
+                                                            "<a href=\"#\" class=\"delete\" title=\"Delete\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
                             }
 
                             counterShow++;
