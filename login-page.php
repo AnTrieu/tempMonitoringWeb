@@ -1012,47 +1012,37 @@
                                 // Update status warning to idle state
                                 document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerText = "Normal temperature";
 
-                                // Only Warning from 8h -> 22h
-                                if (false || (8 <= currentTime.getHours() && currentTime.getHours() < 22))
-                                {
-                                    var flagIgnore = false;
-                                    for(var j = 0; j < (msg.data.locations[i][3].length - 1); j++)
-                                    {                                        
-                                        if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][3][j] >= (msg.data.locations[i][2] + 20)))
-                                        {
-                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
-                                            if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("overload")
+                                // Only Warning all time
+                                var flagIgnore = false;
+                                for(var j = 0; j < (msg.data.locations[i][3].length - 1); j++)
+                                {                                        
+                                    if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][3][j] >= (msg.data.locations[i][2] + 20)))
+                                    {
+                                        if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                            document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
+                                        if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                            document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("overload")
 
-                                            document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerHTML = "Warning level: " + Math.floor((msg.data.locations[i][2] + 20) / 10)  + "." + (msg.data.locations[i][2] + 20) % 10 + "&deg;C";
-                                            break;
-                                        }
-                                        else if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][2] < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < (msg.data.locations[i][2] + 20)))
-                                        {
-                                            if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("middle")                                                
-                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")
-                                                
-                                            flagIgnore = true;
-                                        }
-
-                                        if (!flagIgnore && (j == (msg.data.locations[i][3].length - 2)))
-                                        {         
-                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
-                                            if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
-                                                document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")   
-                                        }
+                                        document.getElementById(msg.data.locations[i][0] + "_EB_notify").childNodes[1].innerHTML = "Warning level: " + Math.floor((msg.data.locations[i][2] + 20) / 10)  + "." + (msg.data.locations[i][2] + 20) % 10 + "&deg;C";
+                                        break;
                                     }
-                                }
-                                else
-                                {
-                                    if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
-                                        document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
-                                    if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
-                                        document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")                                             
+                                    else if((-0xffff < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < 0xffff) && (msg.data.locations[i][2] < msg.data.locations[i][3][j]) && (msg.data.locations[i][3][j] < (msg.data.locations[i][2] + 20)))
+                                    {
+                                        if (!document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                            document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.add("middle")                                                
+                                        if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                            document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")
+                                            
+                                        flagIgnore = true;
+                                    }
+
+                                    if (!flagIgnore && (j == (msg.data.locations[i][3].length - 2)))
+                                    {         
+                                        if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("middle"))
+                                            document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("middle")
+                                        if (document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.contains("overload"))
+                                            document.getElementById(msg.data.locations[i][0] + "_btn").childNodes[1].classList.remove("overload")   
+                                    }
                                 }
 
                                 // Maintained warning

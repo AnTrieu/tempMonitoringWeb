@@ -6,9 +6,10 @@
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="shortcut icon" href="#">
-    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.3">
+    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.4">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7/dist/chartjs-plugin-zoom.min.js"></script>
     <script src="./js/jquery.min.js"></script>
     <script src="./js/common.js?v1.0.12"></script>
     <script src="js/xlsx.full.min.js"></script>
@@ -103,7 +104,24 @@
                     }                          
                 ">Report an issue</span></a></li>            
             <li><a href="#" id="action2" style="color: black; padding-left: 5px; display: flex; justify-content: start; align-items: center;"><img src="./img/history-icon.png" width="20px" height="20px" style="padding-right:5px; margin-right: 5px;"><span
-                onclick="requestDataToDrawChart(new Date());">Chart</span></a></li>
+                onclick="
+                    var sDate = new Date();
+                    var eDate = new Date();
+
+                    /* Get 00:00:00 current day */
+                    sDate.setHours(0);
+                    sDate.setMinutes(0);
+                    sDate.setSeconds(0);
+                    sDate.setMilliseconds(0);
+
+                    /* Get 23:59:59 current day */
+                    eDate.setHours(23);
+                    eDate.setMinutes(59);
+                    eDate.setSeconds(59);
+                    eDate.setMilliseconds(0);  
+
+                    requestDataToDrawChart(sDate, eDate);
+                ">Chart</span></a></li>
         </ul>
     </div>
 
@@ -143,23 +161,16 @@
         <div style="position: absolute; display: flex; justify-content: start; align-items: center;">
             <input type="checkbox" style="left: 0px; opacity: 1; pointer-events: auto; width: 1.3vw; height: 1.3vw;" 
                 onclick="
-                    if ((typeUser == 1) || (typeUser == 4))
-                    {
-                        m_timeUpdate = Math.floor(new Date().getTime() / 1000);
-                        m_warningFlag = this.checked;
+                    // Ignore permission (Customer request)
+                    m_timeUpdate = Math.floor(new Date().getTime() / 1000);
+                    m_warningFlag = this.checked;
 
-                        var obj = new Object();
-                        obj.type        = 'Request-Warning-Flag';
-                        obj.location    = document.body.className.split('_')[1];
-                        obj.value       = m_warningFlag;
+                    var obj = new Object();
+                    obj.type        = 'Request-Warning-Flag';
+                    obj.location    = document.body.className.split('_')[1];
+                    obj.value       = m_warningFlag;
 
-                        window.parent.postMessage(JSON.stringify(obj), '*');                         
-                    } 
-                    else
-                    {
-                        document.getElementById('title').childNodes[7].childNodes[1].checked = !this.checked;
-                        showAlert('danger', 'No permissions are configured', 5000);   
-                    }                         
+                    window.parent.postMessage(JSON.stringify(obj), '*');                        
                 ">
             <label class="title-label" style="font-size: 1.0vw; padding-left: calc(1.3vw + 20px);"></label> 
         </div>
@@ -278,9 +289,17 @@
     <div class="popup_enter" id="popup_chart">
 		<div class="popup_enter_background" style="width:100%; height:100vh; margin-top: 0%; background-color: transparent; position: relative;">
 			<div class="row-temp" id="row-function">
-				<label for="dateInput">Date: </label>
-				<input type="date" id="dateInput" style="margin-left: 10px;">
-				<a href="#" class="filterButton" onclick="requestDataToDrawChart(new Date(document.getElementById('dateInput').value));">
+                <div>
+                    <div style="">
+                        <label for="dateStartInput">Start: </label>
+                        <input type="datetime-local" id="dateStartInput" style="margin-left: 10px;">
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label for="dateEndInput">End: </label>
+                        <input type="datetime-local" id="dateEndInput" style="margin-left: 10px;">
+                    </div>                    
+                </div>
+				<a href="#" class="filterButton" onclick="requestDataToDrawChart(new Date(document.getElementById('dateStartInput').value), new Date(document.getElementById('dateEndInput').value));">
 					<img src="./img/search-icon.png" width="16" height="16" alt="Icon" style="padding-right:5px; ">
 					Search
 				</a>
@@ -310,13 +329,13 @@
 
             // Tạo một trang tính mới
 			var sheet = XLSX.utils.aoa_to_sheet([
-				["Thời gian", "Giá trị"],
+				["Thời gian", "Giá trị (độ C)"],
 				["", "", ""]
 			]);
 
             for (var i = 1; i < data_chart.length; i++) 
             {
-                XLSX.utils.sheet_add_aoa(sheet, [[epochToDateTime(Array.from(data_chart[i])[0]), Array.from(data_chart[i])[1]]], { origin: -1 });
+                XLSX.utils.sheet_add_aoa(sheet, [[epochToDateTime(Array.from(data_chart[i])[0]), Math.floor(Array.from(data_chart[i])[1] / 10)  + "." + (Array.from(data_chart[i])[1] % 10)]], { origin: -1 });
             }
 
 			// Chỉnh định dạng kích thước của ô
@@ -333,17 +352,30 @@
 			XLSX.utils.book_append_sheet(workbook, sheet, 'Sheet1');
 
 			// Lấy ngày hiện tại
-			var currentDate = new Date(document.getElementById('dateInput').value);
+			var currentDate = new Date(document.getElementById('dateStartInput').value);
 		
 			// Tạo chuỗi tên tệp
-			var fileName = "export_" + currentDate.getDate() + "_" + (currentDate.getMonth() + 1) + "_" +  currentDate.getFullYear() + ".xlsx";
+			var fileName = "export_" + document.body.className.split('_')[1] + "_" + currentDate.getDate() + "_" + (currentDate.getMonth() + 1) + "_" +  currentDate.getFullYear() + ".xlsx";
 		
 			// Xuất workbook thành file Excel với tên động
 			XLSX.writeFile(workbook, fileName);	            
         }
 
-        function requestDataToDrawChart(date)
-        {           
+        function requestDataToDrawChart(dateStart, dateEnd)
+        {       
+            // Invalid date
+            if (!(dateStart instanceof Date && !isNaN(dateStart)) || !(dateEnd instanceof Date && !isNaN(dateEnd)) || (dateStart.getTime() > dateEnd.getTime()))
+            {
+                cancelPopup(document.getElementById('popup_chart'));
+                showAlert('danger', 'Date not available', 5000);    
+                return;            
+            }
+
+            if (myChart) {
+                myChart.destroy();
+                myChart = null;
+            }  
+
             document.getElementById('myChart').style.backgroundColor = 'transparent';
             document.getElementById('wait_div').style.visibility = 'visible';
             document.getElementById('row-function').style.visibility = 'hidden';
@@ -360,20 +392,28 @@
             // Clean buffer
             data_chart = [];
             
-            // Get 00:00:00 current day
-            date.setHours(0);
-            date.setMinutes(0);
-            date.setSeconds(0);
-            date.setMilliseconds(0);
+            // Set the value of the date input element to the formatted date
+            var year = dateStart.getFullYear();
+            var month = String(dateStart.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+            var day = String(dateStart.getDate()).padStart(2, '0');
+            var hours = String(dateStart.getHours()).padStart(2, '0');
+            var minutes = String(dateStart.getMinutes()).padStart(2, '0');
+            document.getElementById('dateStartInput').value = `${year}-${month}-${day}T${hours}:${minutes}`;
 
             // Set the value of the date input element to the formatted date
-            document.getElementById('dateInput').value = (date.getFullYear()) + "-" + ((date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1)) + "-" + ((date.getDate() < 10 ? '0' : '') + date.getDate());
+            var year = dateEnd.getFullYear();
+            var month = String(dateEnd.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+            var day = String(dateEnd.getDate()).padStart(2, '0');
+            var hours = String(dateEnd.getHours()).padStart(2, '0');
+            var minutes = String(dateEnd.getMinutes()).padStart(2, '0');
+            document.getElementById('dateEndInput').value = `${year}-${month}-${day}T${hours}:${minutes}`;
 
             var obj = new Object();
             obj.type         = 'Request-Chart';
             obj.location     = document.body.className.split('_')[1];
             obj.value        = document.getElementById('issue_input').value;
-            obj.date         = date.getTime() / 1000;
+            obj.dateStart    = dateStart.getTime() / 1000;
+            obj.dateEnd      = dateEnd.getTime() / 1000;
             obj.user         = sessionStorage.getItem('username');
             obj.slot         = document.getElementById('note-sensor').name
 
@@ -583,7 +623,6 @@
 
                 if ((MALL_pos[sensor - 1][0] < 0) || 
                     (MALL_pos[sensor - 1][1] < 0) || 
-                    (document.getElementById("MALL_"+ sensor) == null) || 
                     (document.getElementById("MALL_circle_"+ sensor) == null) || 
                     (document.getElementById("MALL_lo_" + sensor) == null))
                 {
@@ -613,7 +652,9 @@
         {
             for(var sensor = 1; sensor <= EB_pos.length; sensor++)
             {
-                if ((EB_pos[sensor - 1][0] < 0) || (EB_pos[sensor - 1][1] < 0) || (document.getElementById("EB_"+ sensor) == null) || (document.getElementById("EB_circle_"+ sensor) == null))
+                if ((EB_pos[sensor - 1][0] < 0) || 
+                    (EB_pos[sensor - 1][1] < 0) ||
+                    (document.getElementById("EB_circle_"+ sensor) == null))
                     continue;
 
                 var sensor_value = m_temperate[sensor - 1];
@@ -746,18 +787,13 @@
 
         function drawChart()
         {
-            var xValues = [];
+            var xValues = [], yValues = [];
             for(var i = 0; i< data_chart.length; i++)
             {
-                xValues.push(Array.from(data_chart[i])[0]);                                                               
+                xValues.push(Array.from(data_chart[i])[0]);  
+                yValues.push(parseFloat(Array.from(data_chart[i])[1]) / 10);                                                               
             }
-            
-            var yValues = [];
-            for(var i = 0; i< data_chart.length; i++)
-            {
-                yValues.push(parseFloat(Array.from(data_chart[i])[1]) / 10);  
-            }     
-   
+               
             myChart = new Chart('myChart', {               
                 type: 'line',
                 data: {
@@ -772,12 +808,37 @@
                         pointBackgroundColor: function(context) {
                             var index = context.dataIndex;
                             var value = context.dataset.data[index];
-                            return (value * 10) > m_threshold ? 'red' : 'rgba(0,0,255,1.0)';
+                            return ((value * 10) > (m_threshold + 20)) ? 'red' : (((value * 10) > m_threshold) ? 'yellow' : 'rgba(0,0,255,1.0)');
                         },
-                        pointRadius: 1 // Kích thước của các điểm                 
+                        pointRadius: 2 // Kích thước của các điểm                 
                     }]
                 },
                 options: {
+                    responsive: true,
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'x'
+                            },
+                            zoom: {
+                                enabled: true,
+                                mode: 'x',
+                                speed: 0.00000000000001, // Đặt tốc độ zoom nhanh hơn nữa
+                                sensitivity: 0.000000000005, // Đặt độ nhạy cao hơn
+                                wheel: {
+                                    enabled: true,
+                                    speed: 1000  // Tăng tốc độ zoom bánh xe chuột
+                                },
+                                rangeMin: {
+                                    x: null,
+                                },
+                                rangeMax: {
+                                    x: null,
+                                }                                
+                            }
+                        }   
+                    },                
                     title: {
                         display: true,
                         text: 'TEMPERATURE FLUCTUATION CHART',
@@ -845,14 +906,9 @@
             for (var i = 1; i <= MALL_pos.length; i++) 
             {
                 // Tạo phần tử div cho đường thẳng và đường tròn
-                var verticalDashedLine = document.createElement("div");
                 var redCircle = document.createElement("div");
                 var locationLabel = document.createElement("label");
                 var finalCircle = document.createElement("div");
-
-                // Gán class và id cho mỗi phần tử
-                verticalDashedLine.className = "vertical-dashed-line";
-                verticalDashedLine.id = "MALL_" + i;
 
                 redCircle.classList.add("red-circle");
                 redCircle.id = "MALL_circle_" + i;
@@ -885,21 +941,15 @@
 
                 // Thêm các phần tử vào body
                 document.body.appendChild(locationLabel);
-                document.body.appendChild(verticalDashedLine);
                 document.body.appendChild(redCircle);
                 document.body.appendChild(finalCircle);
             }
 
             for (var i = 1; i <= EB_pos.length; i++) {
                 // Tạo phần tử div cho đường thẳng và đường tròn
-                var verticalLine = document.createElement("div");
                 var redCircle = document.createElement("div");
                 var locationLabel = document.createElement("label");
                 var finalCircle = document.createElement("div");
-
-                // Gán class và id cho mỗi phần tử
-                verticalLine.className = "vertical-line";
-                verticalLine.id = "EB_" + i;
 
                 redCircle.classList.add("red-circle");
                 redCircle.id = "EB_circle_" + i;
@@ -931,7 +981,6 @@
 
                 // Thêm các phần tử vào body
                 document.body.appendChild(locationLabel);
-                document.body.appendChild(verticalLine);
                 document.body.appendChild(redCircle);
                 document.body.appendChild(finalCircle);
             }

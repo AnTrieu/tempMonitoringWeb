@@ -290,12 +290,12 @@ class SQLiteDB(threading.Thread):
                                             # Update database
                                             self.update_table("General_Info", "issue = '" + '_'.join(map(str, location[5])) + "' WHERE location = \'" + str(location[0]) + "\'")
 
-                                    elif payload_json['type'] == "Request-Chart" and payload_json['slot'] > 0:
+                                    elif payload_json['type'] == "Request-Chart" and ('dateStart' in payload_json) and ('dateEnd' in payload_json) and payload_json['slot'] > 0:
                                         data_filter = []
 
-                                        rows = self.fetch_data(location[0] + "_data", "time >= " + str(payload_json['date']) + " and time <= " + str(payload_json['date'] + 86400))
+                                        rows = self.fetch_data(location[0] + "_data", "time >= " + str(payload_json['dateStart']) + " and time <= " + str(payload_json['dateEnd']))
                                         for row in rows:
-                                            if row[0] >= payload_json['date']:
+                                            if payload_json['dateStart'] <= row[0] and row[0] <= payload_json['dateEnd']:
                                                 data_filter.append({'t': int(row[0]), 'v': int(row[1].split('_')[payload_json['slot'] - 1])})
 
                                         if len(data_filter) > 0:
@@ -305,7 +305,8 @@ class SQLiteDB(threading.Thread):
                                                     "topic" : payload_json['user'],                            
                                                     "payload": {
                                                         "command" : "chart_data",
-                                                        "date"    : payload_json['date'],
+                                                        "dateStart" : payload_json['dateStart'],
+                                                        "dateEnd"   : payload_json['dateEnd'],
                                                         "length"  : len(data_filter),
                                                         "data": {
                                                             "filter": chunk
@@ -319,7 +320,8 @@ class SQLiteDB(threading.Thread):
                                                 "topic" : payload_json['user'],                            
                                                 "payload": {
                                                     "command" : "chart_data",
-                                                    "date"    : payload_json['date'],
+                                                    "dateStart" : payload_json['dateStart'],
+                                                    "dateEnd"   : payload_json['dateEnd'],
                                                     "length"  : len(data_filter),
                                                     "data": {
                                                         "filter": data_filter
