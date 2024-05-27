@@ -299,11 +299,12 @@
             setTitleWeb(sessionStorage.getItem('page_current'));
 
             setTimeout(function() {
-                var obj = new Object();
-                obj.type = 'Request-Location';
-                obj.leader = sessionStorage.getItem("username");
-                obj.user = sessionStorage.getItem("username");
-                // console.log(obj)
+                var obj             = new Object();
+                obj.type            = 'Request-Location';
+                obj.leader          = sessionStorage.getItem("username");
+                obj.user            = sessionStorage.getItem("username");
+                obj.location_for 	= "Account";
+
                 client.send("/topic/command_topic", {"content-type": "text/plain"}, JSON.stringify(obj)); 
             }, 1000); 
 
@@ -454,7 +455,7 @@
                         if ((typeUser == 1) || (typeUser == 4))
                         {
                             document.getElementById("section-dropdown").childNodes[1].style.display = "";
-                            
+
                             var obj = new Object();
                             obj.topic = null;
                             obj.type = "Update-Type-User";
@@ -524,17 +525,7 @@
                         //    logout_process();                             
                         //}, 1800000);  
                     }
-                    else if ((obj.type.localeCompare("Request-Warning-Flag") == 0)  ||
-                             (obj.type.localeCompare("Request-Threshold") == 0)     ||
-                             (obj.type.localeCompare("Request-Notify") == 0)        ||
-                             (obj.type.localeCompare("Request-Delete-Issue") == 0) || 
-                             (obj.type.localeCompare("Request-Issue") == 0)         ||
-                             (obj.type.localeCompare("Request-Chart") == 0))
-                    {
-                        // Send to server
-                        client.send("/topic/command_topic", {"content-type": "text/plain"}, JSON.stringify(obj));
-                    }
-                    else if ((obj.type.localeCompare("Request-Location") == 0) || (obj.type.localeCompare("Set-Locations") == 0))
+                    else
                     {
                         // Send to server
                         client.send("/topic/command_topic", {"content-type": "text/plain"}, JSON.stringify(obj));

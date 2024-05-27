@@ -1,6 +1,7 @@
 import queue
 import threading
 import time
+import paho.mqtt
 import paho.mqtt.client as mqtt
 import sqlite3
 import json
@@ -18,8 +19,8 @@ broker_address = "127.0.0.1"
 broker_port = 1883
 sub_topic = ["data_topic", "command_topic"]
 pub_topic = ["web_topic"]
-username = "Device"
-password = "Device@12345"
+username = "Gateway"
+password = "12345678"
 
 device_list_lock = threading.Lock()
 
@@ -79,7 +80,12 @@ class SQLiteDB(threading.Thread):
             if not self.check_table_existence("Location_Info"):
                 # Create table
                 self.create_table("Location_Info", "user TEXT PRIMARY KEY, location TEXT")
-                    
+
+            # self.delete_table("Phone_Info")
+            if not self.check_table_existence("Phone_Info"):
+                # Create table
+                self.create_table("Phone_Info", "number TEXT PRIMARY KEY, creater TEXT, location TEXT, checkPoint INTEGER")
+
             if not self.check_table_existence("General_Info"):
                 # Create table
                 self.create_table("General_Info", "location TEXT PRIMARY KEY, is_warning INTEGER, threshold INTEGER, temperates TEXT, notify TEXT, issue TEXT")
@@ -131,6 +137,7 @@ class SQLiteDB(threading.Thread):
         try:
             sql_query = f"DELETE FROM {table_name} WHERE {condition}"
             self.cursor.execute(sql_query)
+            # logging.info("-> Querry: " + sql_query)
             logging.info("-> Table: \"" + str(table_name) + "\" Deteted: " + str(self.cursor.rowcount) + " rows")
             self.connection.commit()
         except sqlite3.Error as e:
@@ -164,6 +171,15 @@ class SQLiteDB(threading.Thread):
             self.running = False
             logging.exception("SQLite Create Exception occurred:\n\n")
 
+    def delete_table(self, table_name):
+        try:
+            delete_table_query = f"DROP TABLE IF EXISTS {table_name}"
+            self.cursor.execute(delete_table_query)
+            self.connection.commit()
+        except sqlite3.Error as e:
+            self.running = False
+            logging.exception("SQLite Delete Exception occurred:\n\n")
+            
     def check_table_existence(self, table_name):
         try:
             # Thực hiện truy vấn để lấy danh sách các bảng trong cơ sở dữ liệu
@@ -328,15 +344,25 @@ class SQLiteDB(threading.Thread):
                                                     }
                                                 }
                                             })                                        
-                                    
+    
                         elif payload_json['type'] == "Request-Location":
-                            # logging.info("-> " + str(payload_json))
+                            logging.info("-> " + str(payload_json))
                             data_location = []
+                            location_for = ""
 
-                            rows = self.fetch_data("Location_Info", None)
-                            for row in rows:
-                                if row[0] == payload_json['user']:
-                                    data_location.append(row[1].split('_'))
+                            if not ('location_for' in payload_json) or payload_json['location_for'] == "Account":
+                                location_for = "Account"
+                                rows = self.fetch_data("Location_Info", None)
+                                for row in rows:
+                                    if row[0] == payload_json['user']:
+                                        data_location.append(row[1].split('_'))
+
+                            elif payload_json['location_for'] == "Sms":
+                                location_for = "Sms"
+                                rows = self.fetch_data("Phone_Info", None)
+                                for row in rows:
+                                    if row[0] == payload_json['user']:
+                                        data_location.append(row[2].split('_'))
 
                             self.pub_queue.put({
                                 "topic" : payload_json['leader'],                            
@@ -344,14 +370,85 @@ class SQLiteDB(threading.Thread):
                                     "command" : "reponse_location",
                                     "data": {
                                         "user": payload_json['user'],
+                                        "location_for" : location_for,
                                         "location": data_location
                                     }
                                 }
                             })  
-
+                        
                         elif payload_json['type'] == "Set-Locations":
                             logging.info("-> " + str(payload_json))
-                            self.insert_or_update_table("Location_Info", [str(payload_json['user']), '_'.join(map(str, payload_json['locations']))])
+                            
+                            if payload_json['location_for'] == "Account":
+                                self.insert_or_update_table("Location_Info", [str(payload_json['user']), '_'.join(map(str, payload_json['locations']))])
+                            elif payload_json['location_for'] == "Sms":
+                                self.update_table("Phone_Info", "location = \'" + '_'.join(map(str, payload_json['locations'])) + "\' WHERE number = \'" + str(payload_json['user']) + "\'")
+
+                        elif payload_json['type'] == "Set-Number-Phone":
+                            logging.info("-> " + str(payload_json))
+                            
+                            # Send response
+                            owner_number_phone = ""
+                            data_filter = []
+                            
+                            rows = self.fetch_data("Phone_Info", None)
+                            for i, row in enumerate(rows):
+                                if row[0] == payload_json['number_phone']:
+                                    owner_number_phone = row[1]
+                                    
+                                if (0 <= i) and (i < 20):
+                                    data_filter.append(row)
+                            
+                            if len(owner_number_phone) == 0:
+                                # Clear buffer
+                                data_filter = []
+                                self.insert_or_update_table("Phone_Info", [str(payload_json['number_phone']), str(payload_json['leader']), '_'.join(map(str, payload_json['locations'])), 0])
+                                
+                                # Update data response
+                                rows = self.fetch_data("Phone_Info", None)
+                                for i, row in enumerate(rows):                                        
+                                    if (0 <= i) and (i < 20):
+                                        data_filter.append(row)
+                                    
+                            self.pub_queue.put({
+                                "topic" : payload_json['leader'],                            
+                                "payload": {
+                                    "command" : "reponse_numbers",
+                                    "length"  : len(rows),
+                                    "page"  : 1,
+                                    "data": {
+                                        "owner" : owner_number_phone,
+                                        "filter": data_filter
+                                    }                                        
+                                }
+                            })
+                                                                    
+                        elif payload_json['type'] == "Request-Numbers" or payload_json['type'] == "Delete-Number-Phone":
+                            logging.info("-> " + str(payload_json))
+                            data_filter = []
+                            
+                            # Delete phone number
+                            if payload_json['type'] == "Delete-Number-Phone":
+                                self.delete_row("Phone_Info", "number = \'" + str(payload_json['number_phone']) + "\'")
+                                
+                            rows = self.fetch_data("Phone_Info", None)
+                            for i, row in enumerate(rows):
+                                if payload_json['page'] > 0 and (((payload_json['page'] - 1) * 20) <= i) and (i < (payload_json['page'] * 20)):
+                                    data_filter.append(row)
+
+                            self.pub_queue.put({
+                                "topic" : payload_json['leader'],                            
+                                "payload": {
+                                    "command" : "reponse_numbers",
+                                    "length"  : len(rows),
+                                    "page"  : payload_json['page'],
+                                    "data": {
+                                        "owner" : "",
+                                        "filter": data_filter
+                                    }                                        
+                                }
+                            })                                 
+
 
                 # logging.info("-----> Step: Process Queue Store Data [End]")
 
@@ -369,9 +466,13 @@ class MQTTThread(threading.Thread):
         self.connected = False
         self.message_queue = message_queue
         self.pub_queue = pub_queue
-        self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, clean_session=True)
+        # if paho.mqtt.__version__[0] > '1':
+        #     self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, clean_session=True)
+        # else:
+        #     self.client = mqtt.Client(clean_session=True)
+        self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, clean_session=True)
 
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc, properties):
         if rc == 0:
             logging.info("Connected to RabbitMQ broker !!!")
             for topic in sub_topic:
@@ -393,7 +494,7 @@ class MQTTThread(threading.Thread):
             self.running = False
 
     # Hàm xử lý sự kiện khi client bị ngắt kết nối
-    def on_disconnect(self, client, userdata, rc):
+    def on_disconnect(self, client, userdata, flags, rc, properties):
         self.connected = False
         logging.info("MQTT connection closed")            
 

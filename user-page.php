@@ -23,33 +23,63 @@ let maxRetries = 3;
 let retryCount = 0;
 let timeoutLocation = -1;
 
-function deleteUser(user)
+function opentab(evt) {						
+    var i, tablinks;
+
+    if(evt.currentTarget.classList.contains("active"))
+        return;
+
+    // Remove active class for all element
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Active button
+    evt.currentTarget.className += " active";
+
+    showUser(1, evt.currentTarget.attributes[1].value);
+}
+
+function deleteUser(key, type)
 {
-    document.getElementById("header_popup_confirm").innerText = 'XÓA TÀI KHOẢN';
-    document.getElementById("content_popup_confirm").textContent = 'Xóa vĩnh viển tài khoản ?'
-	document.getElementById("popup_confirm").style.visibility = "visible";
-    document.getElementById("content_popup_confirm").name = user;
+	if (type.localeCompare("Account") == 0)
+	{
+		document.getElementById("header_popup_confirm").innerText = 'REMOVE THE ACCOUNT';
+		document.getElementById("content_popup_confirm").textContent = 'Delete the account permanently ?'
+		document.getElementById("popup_confirm").style.visibility = "visible";		
+	}
+	else
+	{
+		document.getElementById("header_popup_confirm").innerText = 'REMOVE PHONE';
+		document.getElementById("content_popup_confirm").textContent = 'Delete the account permanently ?'
+		document.getElementById("popup_confirm").style.visibility = "visible";
+	}
+	
+	document.getElementById("content_popup_confirm").name = key;
 }
 
 function resetUser(user)
 {
-    document.getElementById("header_popup_confirm").innerText = 'THIẾT LẬP TÀI KHOẢN';
-    document.getElementById("content_popup_confirm").textContent = 'Đặt lại mật khẩu ?'
+    document.getElementById("header_popup_confirm").innerText = 'ACCOUNT SETTINGS';
+    document.getElementById("content_popup_confirm").textContent = 'Would you like reset your password ?'
 	document.getElementById("popup_confirm").style.visibility = "visible";
     document.getElementById("content_popup_confirm").name = user;
 }
 
-function selectLocation(user)
+function selectLocation(key, type)
 {
+	// Send request
+    var obj             = new Object();
+    obj.type 			= 'Request-Location';
+    obj.leader 			= leader;
+    obj.user 			= key;
+	obj.location_for 	= type;
+
+    window.parent.postMessage(JSON.stringify(obj), '*'); 
+	
     // Active loader
     document.getElementById("wait_div").style.visibility = 'visible'; 
-    console.log(user)
-    var obj = new Object();
-    obj.type = 'Request-Location';
-    obj.leader = leader;
-    obj.user = user;
-
-    window.parent.postMessage(JSON.stringify(obj), '*');  
 
     clearTimeout(timeoutLocation);
     timeoutLocation = setTimeout(function() { 
@@ -58,39 +88,81 @@ function selectLocation(user)
             // Deactive loader
             document.getElementById("wait_div").style.visibility = 'hidden'; 
 
-            showAlert('danger', 'Lỗi tải dữ liệu', 5000);  
+            showAlert('danger', 'Data loading error', 5000);  
         }                     
-    }, 5000);
+    }, 3000);
 }
 
-function showUser(page)
+function showUser(page, type)
 {
     // Refesh table dataTable
     var table = document.getElementById("table_user");
     for (var i = table.rows.length - 1; i >= 0; i--) {
         table.deleteRow(i);
     }
-    
+
+    // Remove active class for all element
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        if(tablinks[i].attributes[1].value.localeCompare(type) == 0)
+        {
+            // Active Acount button 
+            tablinks[i].className += " active";            
+        }
+    }
+
     // Active loader
     document.getElementById("wait_div").style.visibility = 'visible';  
 
-    $.ajax({
-        type: "GET",
-        url: "./php/request_all_user.php",
-        data: {},
-        timeout: 3000,
-        success: function(data_response) {
+    if (type.localeCompare("Account") == 0)
+    {
+        // Update label
+        document.getElementById("info_header").textContent = "Accounts";
+        document.getElementById("info_key").textContent = "User";
 
-            if (data_response.length > 0) {
-                var obj = JSON.parse(data_response);
-                var table = document.getElementById("table_user");
-                var counter = 0;
-                var counterShow = 0;
-                var counter_2 = 0;
+        $.ajax({
+            type: "GET",
+            url: "./php/request_all_user.php",
+            data: {},
+            timeout: 3000,
+            success: function(data_response) {
 
-                // Find new user
-                if (page <= 0)
-                {
+                if (data_response.length > 0) {
+                    var obj = JSON.parse(data_response);
+                    var table = document.getElementById("table_user");
+                    var counter = 0;
+                    var counterShow = 0;
+                    var counter_2 = 0;
+                    
+                    // Find new user
+                    if (page <= 0)
+                    {
+                        for (var i = 0; i < Object.keys(obj).length; i++) 
+                        {
+                            if(obj[i].tags.length == 1)
+                            {
+                                tagsMaster = obj[i].tags[0];
+                            }
+                            else
+                            {
+                                tagsMaster = obj[i].tags;
+                            }    
+                            
+                            var parts = tagsMaster.split("_");
+                            if(parts.length == 3)
+                            {
+                                counter_2++;
+                            }
+                        }
+
+                        page = Math.ceil(counter_2 / 20)
+                    }
+
+                    if (page <= 0)
+                        return;
+
+                    // Add user                    
                     for (var i = 0; i < Object.keys(obj).length; i++) 
                     {
                         if(obj[i].tags.length == 1)
@@ -100,98 +172,162 @@ function showUser(page)
                         else
                         {
                             tagsMaster = obj[i].tags;
-                        }    
+                        }   
                         
-                        var parts = tagsMaster.split("_");
-                        if(parts.length == 3)
+                        var parts = tagsMaster.split("_");                    
+                        if (((leader.localeCompare(parts[1]) == 0) && (typeUser == 4) && (parts.length == 3)) ||  ((typeUser == 1) && (parts.length == 4)))
                         {
-                            counter_2++;
+                            counter++;
+                            if ((((page - 1) * 20) < counter) && (counter <= (page * 20)))
+                            {
+                                var new_row = table.insertRow();
+                                new_row.setAttribute("id", "user_" + obj[i].name);
+
+                                var index_cell = new_row.insertCell();
+                                index_cell.setAttribute("style", "width:5%;");
+                                index_cell.innerHTML = counter;
+
+                                var name_cell = new_row.insertCell();
+                                name_cell.setAttribute("style", "width:25%;");
+                                name_cell.innerHTML = "<a href=\"#\" style=\"cursor: default;\">" + obj[i].name + "</a>";
+
+                                if(parts.length == 3)
+                                {
+                                    var belong_cell = new_row.insertCell();
+                                    belong_cell.setAttribute("style", "width:25%;");
+                                    belong_cell.innerHTML = parts[1];
+
+                                    var type_cell = new_row.insertCell();
+                                    type_cell.setAttribute("style", "width:15%;");
+                                    type_cell.innerHTML = parts[0];       
+                                }
+                                else
+                                {
+                                    var belong_cell = new_row.insertCell();
+                                    belong_cell.setAttribute("style", "width:25%;");
+                                    belong_cell.innerHTML = "--";
+
+                                    var type_cell = new_row.insertCell();
+                                    type_cell.setAttribute("style", "width:15%;");
+                                    type_cell.innerHTML = parts[1];                                 
+                                }
+
+                                var status_cell = new_row.insertCell();
+                                status_cell.setAttribute("style", "width:15%;");
+                                status_cell.innerHTML = "<span class=\"status text-success\">&bull;</span> Kích hoạt";     
+
+                                var feature_cell = new_row.insertCell();
+                                feature_cell.setAttribute("style", "width:15%;");
+                                if (typeUser == 1)
+                                {
+                                    feature_cell.innerHTML =    "<a href=\"#\" class=\"assign\" title=\"Location\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\", \"Account\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
+                                                                "<a href=\"#\" class=\"reload\" title=\"Reset\" data-toggle=\"tooltip\" onclick=\'resetUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe86a;</i></a>" + 
+                                                                "<a href=\"#\" class=\"delete\" title=\"Delete\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\", \"Account\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
+                                }
+                                else
+                                {
+                                    feature_cell.innerHTML =    "<a href=\"#\" class=\"assign disable\" title=\"Location\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\", \"Account\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
+                                                                "<a href=\"#\" class=\"reload\" title=\"Reset\" data-toggle=\"tooltip\" onclick=\'resetUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe86a;</i></a>" + 
+                                                                "<a href=\"#\" class=\"delete\" title=\"Delete\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\", \"Account\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
+                                }
+
+                                counterShow++;
+                            }                                          
                         }
                     }
 
-                    page = Math.ceil(counter_2 / 20)
-                }
+                    // Count
+                    document.getElementById("show-index").textContent = counterShow;
+                    document.getElementById("total-index").textContent = counter;
 
-                if (page <= 0)
-                    return;
+                    // Pages menu
+                    var ul = document.getElementById("page_menu");
 
-                // Add user                    
-                for (var i = 0; i < Object.keys(obj).length; i++) 
-                {
-                    if(obj[i].tags.length == 1)
-                    {
-                        tagsMaster = obj[i].tags[0];
+                    // Remove all page
+                    while (ul.firstChild) {
+                        ul.removeChild(ul.firstChild);
                     }
-                    else
+
+                    // Create a new page
+                    var li = document.createElement("li");
+                    li.classList.add("page-item");
+                    if (page == 1)
+                        li.classList.add("disabled");
+                    li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + (page - 1) + ", 'Account')\">Previous</a>";
+                    ul.appendChild(li);
+
+                    for(var i = 1; i <= Math.ceil(counter / 20); i++)
                     {
-                        tagsMaster = obj[i].tags;
-                    }   
-                    
-                    var parts = tagsMaster.split("_");                    
-                    if (((typeUser == 4) && (parts.length == 3)) ||  ((typeUser == 1) && (parts.length == 4)))
-                    {
-                        counter++;
-                        if ((((page - 1) * 20) < counter) && (counter <= (page * 20)))
+                        if (((page - 2) <= i) && (i <= (page + 2)))
                         {
-                            var new_row = table.insertRow();
-                            new_row.setAttribute("id", "user_" + obj[i].name);
-
-                            var index_cell = new_row.insertCell();
-                            index_cell.setAttribute("style", "width:5%;");
-                            index_cell.innerHTML = counter;
-
-                            var name_cell = new_row.insertCell();
-                            name_cell.setAttribute("style", "width:25%;");
-                            name_cell.innerHTML = "<a href=\"#\">" + obj[i].name + "</a>";
-
-                            if(parts.length == 3)
+                            // Create a new li element
+                            var li = document.createElement("li");
+                            li.classList.add("page-item");
+                            if( i == page)
                             {
-                                var belong_cell = new_row.insertCell();
-                                belong_cell.setAttribute("style", "width:25%;");
-                                belong_cell.innerHTML = parts[1];
-
-                                var type_cell = new_row.insertCell();
-                                type_cell.setAttribute("style", "width:15%;");
-                                type_cell.innerHTML = parts[0];       
+                                li.classList.add("active");
+                                li.innerHTML = "<a href=\"#\" class=\"page-link\" style=\"cursor: not-allowed;\">" + i + "</a>";
                             }
                             else
                             {
-                                var belong_cell = new_row.insertCell();
-                                belong_cell.setAttribute("style", "width:25%;");
-                                belong_cell.innerHTML = "--";
-
-                                var type_cell = new_row.insertCell();
-                                type_cell.setAttribute("style", "width:15%;");
-                                type_cell.innerHTML = parts[1];                                 
+                                li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + i + ", 'Account')\">" + i + "</a>";
                             }
-
-                            var status_cell = new_row.insertCell();
-                            status_cell.setAttribute("style", "width:15%;");
-                            status_cell.innerHTML = "<span class=\"status text-success\">&bull;</span> Kích hoạt";     
-
-                            var feature_cell = new_row.insertCell();
-                            feature_cell.setAttribute("style", "width:15%;");
-                            if (typeUser == 1)
-                            {
-                                feature_cell.innerHTML =    "<a href=\"#\" class=\"assign\" title=\"Location\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
-                                                            "<a href=\"#\" class=\"reload\" title=\"Reset\" data-toggle=\"tooltip\" onclick=\'resetUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe86a;</i></a>" + 
-                                                            "<a href=\"#\" class=\"delete\" title=\"Delete\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
-                            }
-                            else
-                            {
-                                feature_cell.innerHTML =    "<a href=\"#\" class=\"assign disable\" title=\"Location\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe307;</i></a>" + 
-                                                            "<a href=\"#\" class=\"reload\" title=\"Reset\" data-toggle=\"tooltip\" onclick=\'resetUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xe86a;</i></a>" + 
-                                                            "<a href=\"#\" class=\"delete\" title=\"Delete\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + obj[i].name + "\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";  
-                            }
-
-                            counterShow++;
-                        }                                          
+                                
+                            ul.appendChild(li);  
+                        }                     
                     }
+
+                    // Create a new li element
+                    var li = document.createElement("li");
+                    li.classList.add("page-item");
+                    if( page >= Math.ceil(counter / 20))
+                    {
+                        li.classList.add("disabled");
+                    }
+                    li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + (page + 1) + ", 'Account')\">Next</a>";
+                    ul.appendChild(li);
                 }
+
+                // Deactive loader
+                document.getElementById("wait_div").style.visibility = 'hidden';
+            },
+            error: function(xhr, status, error) {
+                if (status === 'timeout' && retryCount < maxRetries) {
+                    retryCount++;
+                    // Retry AJAX call
+                    showUser(1, 'Account');
+                } else {
+                    showAlert('danger', 'Connecting to the server is not working properly', 3000);
+
+                    // Deactive loader
+                    document.getElementById("wait_div").style.visibility = 'hidden';                
+                }
+            } 
+        });    
+    }
+    else if (type.localeCompare("Sms") == 0)
+    {
+        // Update label
+        document.getElementById("info_header").textContent = "Phone Number";
+        document.getElementById("info_key").textContent = "Number";
+
+        var obj = new Object(); 
+        obj.type        = 'Request-Numbers';
+        obj.leader      = leader;
+        obj.page        = page;
+
+        window.parent.postMessage(JSON.stringify(obj), '*');  
+
+        clearTimeout(timeoutLocation);
+        timeoutLocation = setTimeout(function() { 
+            if (document.getElementById("wait_div").style.visibility == 'visible')
+            {
+                // Deactive loader
+                document.getElementById("wait_div").style.visibility = 'hidden'; 
 
                 // Count
-                document.getElementById("show-index").textContent = counterShow;
-                document.getElementById("total-index").textContent = counter;
+                document.getElementById("show-index").textContent = 0;
+                document.getElementById("total-index").textContent = 0;
 
                 // Pages menu
                 var ul = document.getElementById("page_menu");
@@ -204,59 +340,28 @@ function showUser(page)
                 // Create a new page
                 var li = document.createElement("li");
                 li.classList.add("page-item");
-                if (page == 1)
-                    li.classList.add("disabled");
-                li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + (page - 1) + ")\">Previous</a>";
+                li.classList.add("disabled");
+                li.innerHTML = "<a href=\"#\" class=\"page-link\">Previous</a>";
                 ul.appendChild(li);
-
-                for(var i = 1; i <= Math.ceil(counter / 20); i++)
-                {
-                    if (((page - 2) <= i) && (i <= (page + 2)))
-                    {
-                        // Create a new li element
-                        var li = document.createElement("li");
-                        li.classList.add("page-item");
-                        if( i == page)
-                        {
-                            li.classList.add("active");
-                            li.innerHTML = "<a href=\"#\" class=\"page-link\" style=\"cursor: not-allowed;\">" + i + "</a>";
-                        }
-                        else
-                        {
-                            li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + i + ")\">" + i + "</a>";
-                        }
-                            
-                        ul.appendChild(li);  
-                    }                     
-                }
 
                 // Create a new li element
                 var li = document.createElement("li");
                 li.classList.add("page-item");
-                if( page >= Math.ceil(counter / 20))
-                {
-                    li.classList.add("disabled");
-                }
-                li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + (page + 1) + ")\">Next</a>";
+                li.classList.add("active");
+                li.innerHTML = "<a href=\"#\" class=\"page-link\" style=\"cursor: not-allowed;\">1</a>";                   
+                ul.appendChild(li);  
+
+                // Create a new li element
+                var li = document.createElement("li");
+                li.classList.add("page-item");
+                li.classList.add("disabled");
+                li.innerHTML = "<a href=\"#\" class=\"page-link\">Next</a>";
                 ul.appendChild(li);
-            }
 
-            // Deactive loader
-            document.getElementById("wait_div").style.visibility = 'hidden';
-        },
-        error: function(xhr, status, error) {
-            if (status === 'timeout' && retryCount < maxRetries) {
-                retryCount++;
-                // Retry AJAX call
-                showUser(1);
-            } else {
-                showAlert('danger', 'Gặp sự cố khi kết nối đến máy chủ', 3000);
-
-                // Deactive loader
-                document.getElementById("wait_div").style.visibility = 'hidden';                
-            }
-        } 
-	});      
+                showAlert('danger', 'Data loading error', 5000);  
+            }                     
+        }, 3000);
+    }
 }
 
 $(window).load(function() {
@@ -268,15 +373,16 @@ $(window).load(function() {
 			if (obj.topic != null)
             {
                 var msg = JSON.parse(obj.message);
-                if (msg.command.localeCompare("reponse_location") == 0)
+                if ((msg.command.localeCompare("reponse_location") == 0) && (typeUser > 0))
                 {
-                    if (document.getElementById("wait_div").style.visibility == 'visible')
+                    if (((msg.data.location_for.localeCompare("Account") == 0) && (document.getElementById("wait_div").style.visibility == 'visible') && (document.getElementsByClassName("tablinks")[0].classList.contains("active"))) ||
+                        ((msg.data.location_for.localeCompare("Sms") == 0) && (document.getElementById("wait_div").style.visibility == 'visible') && (document.getElementsByClassName("tablinks")[1].classList.contains("active"))))
                     {
                         // Deactive loader
                         document.getElementById("wait_div").style.visibility = 'hidden';                    
                         
                         document.getElementById("popup_location").style.visibility = "visible";
-                        document.getElementById("popup_location").name = msg.data.user;
+                        document.getElementById("popup_location").name = msg.data.user + "_" + msg.data.location_for;
 
                         document.getElementById('TBG').checked = false;
                         document.getElementById('HDG').checked = false;
@@ -293,11 +399,122 @@ $(window).load(function() {
                         {
                             for(var i = 0; i < msg.data.location[0].length; i++)
                             {
-                                document.getElementById(msg.data.location[0][i]).checked = true;
+                                if(msg.data.location[0][i].length > 0)
+                                    document.getElementById(msg.data.location[0][i]).checked = true;
                             }
                         }
                     }
-                }                
+                }    
+                else if ((msg.command.localeCompare("reponse_numbers") == 0) && (document.getElementById("wait_div").style.visibility == 'visible') && (document.getElementsByClassName("tablinks")[1].classList.contains("active")))
+                {
+					var counter = 0;
+					
+					// Refesh table dataTable
+					var table = document.getElementById('table_user');
+					for (var i = table.rows.length - 1; i >= 0; i--) {
+						table.deleteRow(i);
+					}
+				
+                    // Deactive loader
+                    document.getElementById("wait_div").style.visibility = 'hidden';                    
+
+                    for(var i = 0; i < msg.data.filter.length; i++)
+                    {
+                        if (((leader.localeCompare(msg.data.filter[i][1]) == 0) || (typeUser == 1)))
+                        {
+                            // Counter list
+                            counter++;
+
+                            var new_row = table.insertRow();
+                            new_row.setAttribute("id", "user_" + msg.data.filter[i][0]);
+
+                            var index_cell = new_row.insertCell();
+                            index_cell.setAttribute("style", "width:5%;");
+                            index_cell.innerHTML = (msg.page - 1) * 20 + counter;
+
+                            var name_cell = new_row.insertCell();
+                            name_cell.setAttribute("style", "width:25%;");
+                            name_cell.innerHTML = "<a href=\"#\" style=\"cursor: default;\">" + msg.data.filter[i][0] + "</a>";
+
+                            var belong_cell = new_row.insertCell();
+                            belong_cell.setAttribute("style", "width:25%;");
+                            belong_cell.innerHTML = msg.data.filter[i][1];
+
+                            var type_cell = new_row.insertCell();
+                            type_cell.setAttribute("style", "width:15%;");
+                            type_cell.innerHTML = "Phone";  
+                            
+                            var status_cell = new_row.insertCell();
+                            status_cell.setAttribute("style", "width:15%;");
+                            status_cell.innerHTML = "<span class=\"status text-success\">&bull;</span> Kích hoạt";     
+
+                            var feature_cell = new_row.insertCell();
+                            feature_cell.setAttribute("style", "width:15%;");    
+                            feature_cell.innerHTML =    "<a href=\"#\" class=\"assign\" title=\"Location\" data-toggle=\"tooltip\" onclick=\'selectLocation(\"" + msg.data.filter[i][0] + "\", \"Sms\")\'><i class=\"material-icons\">&#xe307;</i></a>" +
+                                                        "<a href=\"#\" class=\"delete\" title=\"Delete\" data-toggle=\"tooltip\" onclick=\'deleteUser(\"" + msg.data.filter[i][0] + "\", \"Sms\")\'><i class=\"material-icons\">&#xE5C9;</i></a>";                              
+                        }   
+                        else if (msg.length > 0)
+                        {
+                            msg.length -= 1;
+                        }                                         
+                    }   
+                    
+                    // Count
+                    document.getElementById("show-index").textContent = counter;
+                    document.getElementById("total-index").textContent = msg.length;
+
+                    // Pages menu
+                    var ul = document.getElementById("page_menu");
+
+                    // Remove all page
+                    while (ul.firstChild) {
+                        ul.removeChild(ul.firstChild);
+                    }
+
+                    // Create a new page
+                    var li = document.createElement("li");
+                    li.classList.add("page-item");
+                    if (msg.page == 1)
+                        li.classList.add("disabled");
+                    li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + (msg.page - 1) + ", 'Sms')\">Previous</a>";
+                    ul.appendChild(li);
+
+                    for(var i = 1; i <= Math.ceil(msg.length / 20); i++)
+                    {
+                        if (((msg.page - 2) <= i) && (i <= (msg.page + 2)))
+                        {
+                            // Create a new li element
+                            var li = document.createElement("li");
+                            li.classList.add("page-item");
+                            if( i == msg.page)
+                            {
+                                li.classList.add("active");
+                                li.innerHTML = "<a href=\"#\" class=\"page-link\" style=\"cursor: not-allowed;\">" + i + "</a>";
+                            }
+                            else
+                            {
+                                li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + i + ", 'Sms')\">" + i + "</a>";
+                            }
+                                
+                            ul.appendChild(li);  
+                        }                     
+                    }
+
+                    // Create a new li element
+                    var li = document.createElement("li");
+                    li.classList.add("page-item");
+                    if( msg.page >= Math.ceil(msg.length / 20))
+                    {
+                        li.classList.add("disabled");
+                    }
+                    li.innerHTML = "<a href=\"#\" class=\"page-link\" onclick=\"showUser(" + (msg.page + 1) + ", 'Sms')\">Next</a>";
+                    ul.appendChild(li);  
+
+					if (msg.data.owner.length > 0)
+					{
+						showAlert('danger', 'Phone number has been included by \"' + msg.data.owner + "\"", 5000);  
+					}
+                }          
             }
 
             // Message internal
@@ -311,21 +528,25 @@ $(window).load(function() {
                     leader = obj.leader;
                     if(typeUser > 0)
                     {
-                        showUser(1);  
+                        showUser(1, 'Account');
                     }                        
                 }
                 else if (obj.type.localeCompare("Update-Type-User") == 0)
                 {
-                    typeUser = obj.rootTypeUser;
-                    showUser(1);  
+                    if(typeUser != obj.rootTypeUser)
+                    {
+                        typeUser = obj.rootTypeUser;
+                        showUser(1, 'Account'); 
+                    }                   
                 }
             }
         }
     });    
     
     window.addEventListener("click", function(e) {
-        if ((e.target == document.getElementById("popup-create"))   ||
-            (e.target == document.getElementById("popup_confirm"))  ||
+        if ((e.target == document.getElementById("popup-create"))       ||
+            (e.target == document.getElementById("popup-create-phone")) ||
+            (e.target == document.getElementById("popup_confirm"))      ||
             (e.target == document.getElementById("popup_location"))) {
             e.target.style.visibility = 'hidden';
         }				
@@ -343,25 +564,42 @@ $(window).load(function() {
 <div class="container-xl">
     <div class="table-responsive">
         <div class="table-wrapper">
+            <div class="tab">
+				<button class="tablinks active" name="Account" onclick="opentab(event)">Account</button>
+                <button class="tablinks" name="Sms" onclick="opentab(event)">SMS</button>
+            </div>            
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Quản lý <b>tài khoản</b></h2>
+                        <h2>Manage <b id="info_header">Accounts</b></h2>
                     </div>
                     <div class="col-sm-7">
                         <a href="#" class="btn btn-secondary" 
                         onclick="
                             if ((typeUser == 1) || (typeUser == 4))
                             {
-                                document.getElementById('Username').style.border = ''; 
-                                document.getElementById('Username').value = '';        
-                                document.getElementById('Password').style.border = ''; 
-                                document.getElementById('Password').value = '';     
-                                document.getElementById('Confirm_Password').style.border = ''; 
-                                document.getElementById('Confirm_Password').value = '';                                                                          
-                                document.getElementById('popup-create').style.visibility = 'visible';                                
+                                if (document.getElementsByClassName('tablinks')[0].classList.contains('active'))
+                                {
+                                    document.getElementById('Username').style.border = ''; 
+                                    document.getElementById('Username').value = '';        
+                                    document.getElementById('Password').style.border = ''; 
+                                    document.getElementById('Password').value = '';     
+                                    document.getElementById('Confirm_Password').style.border = ''; 
+                                    document.getElementById('Confirm_Password').value = '';                                                                          
+                                    document.getElementById('popup-create').style.visibility = 'visible';                                      
+                                } 
+                                else if (document.getElementsByClassName('tablinks')[1].classList.contains('active'))
+                                {
+                                    document.getElementById('Phone_Number').style.border = ''; 
+                                    document.getElementById('Phone_Number').value = '';                                     
+                                    document.getElementById('popup-create-phone').style.visibility = 'visible';
+                                }                             
                             }
-                        " ><i class="material-icons">&#xE147;</i> <span>Thêm tài khoản</span></a>		
+                            else
+                            {
+                                showAlert('danger', 'No permissions are configured', 3000);   
+                            }                             
+                        " ><i class="material-icons">&#xE147;</i> <span>New</span></a>		
                     </div>
                 </div>
             </div>
@@ -370,11 +608,11 @@ $(window).load(function() {
                     <thead>
                         <tr>
                             <th style="width:5%;">#</th>
-                            <th style="width:25%;">Tên đăng nhập</th>						
-                            <th style="width:25%;">Người tạo</th>
-                            <th style="width:15%;">Loại</th>
-                            <th style="width:15%;">Trạng tái</th>
-                            <th style="width:15%;">Tác vụ</th>
+                            <th style="width:25%;" id="info_key">User</th>						
+                            <th style="width:25%;">Creator</th>
+                            <th style="width:15%;">Type</th>
+                            <th style="width:15%;">Status</th>
+                            <th style="width:15%;">Feature</th>
                         </tr>
                     </thead>
                 </table>
@@ -392,39 +630,39 @@ $(window).load(function() {
         </div>      
     </div>
     <div>
-        <div class="hint-text">Hiển thị <b id="show-index">0</b> trong tổng số <b id="total-index">0</b> tài khoản</div>
+        <div class="hint-text">Shows <b id="show-index">0</b> in total <b id="total-index">0</b> account</div>
         <ul class="pagination" id="page_menu"></ul>
     </div>  
 </div>     
 
 <div class="popup-create" id="popup-create">
-	<div class="form-create" id="form-create">
+	<div class="form-create">
 		<div class="div-title">
 			<label class="title">
-				TẠO TÀI KHOẢN
+                NEW ACCOUNT
 			</label>
 		</div>
 		<form action="#">
 			<div>
-				<label>Tên đăng nhập (<span style="color: red;">*</span>): </label>
+				<label>User (<span style="color: red;">*</span>): </label>
                 <br>
-				<input type="text" value="" placeholder="Nhập Username" id="Username" onfocus="this.style.border = ''">
+				<input type="text" value="" placeholder="Enter Username" id="Username" onfocus="this.style.border = ''">
 			</div>
 			<div>
-				<label>Mật khẩu (<span style="color: red;">*</span>): </label>
+				<label>Password (<span style="color: red;">*</span>): </label>
                 <br>
-				<input type="password" value="" placeholder="Nhập Password" id="Password" onfocus="this.style.border = ''">
+				<input type="password" value="" placeholder="Enter Password" id="Password" onfocus="this.style.border = ''">
 			</div>
 			<div>
-				<label>Nhập lại mật khẩu (<span style="color: red;">*</span>): </label>
+				<label>Re-Password (<span style="color: red;">*</span>): </label>
                 <br>
-				<input type="password" value="" placeholder="Nhập Password" id="Confirm_Password" onfocus="this.style.border = ''">
+				<input type="password" value="" placeholder="Enter Re-Password" id="Confirm_Password" onfocus="this.style.border = ''">
 			</div>
 		</form>
 		<div class="btn_confirm_create">
 			<button class="btn-cancel" onclick="
                 document.getElementById('popup-create').style.visibility = 'hidden';
-            ">Hủy bỏ</button>
+            ">Cancel</button>
 			<button class="btn-confirm" onclick="
                 var flagError = false;
                 if (document.getElementById('Username').value.length == 0)
@@ -446,8 +684,16 @@ $(window).load(function() {
                     (document.getElementById('Username').value.indexOf('.') >= 0) ||
                     (document.getElementById('Username').value.indexOf('_') >= 0))
                 {
-                    showAlert('danger', 'Chứa kí tự đặc biệt', 3000);
+                    showAlert('danger', 'Contains special characters', 3000);
                     flagError = true;
+                }
+                if ((document.getElementById('Username').value.localeCompare('Device') == 0) ||
+                    (document.getElementById('Username').value.localeCompare('Gateway') == 0) ||
+                    (document.getElementById('Username').value.localeCompare('OTPServer') == 0) ||
+                    (document.getElementById('Username').value.localeCompare('port_get_info_user') == 0))
+                {
+                    showAlert('danger', 'Account is already set up', 3000);
+                    flagError = true;                    
                 }
 
                 if(flagError)
@@ -456,7 +702,7 @@ $(window).load(function() {
                 {
                     if (document.getElementById('Password').value.localeCompare(document.getElementById('Confirm_Password').value) != 0)
                     {
-                        showAlert('danger', 'Dữ liệu không khớp', 3000);
+                        showAlert('danger', 'Information is inconsistent', 3000);
                     }
                     else
                     {
@@ -478,12 +724,12 @@ $(window).load(function() {
                                 success: function(data_response) {
                                     if (data_response.localeCompare('ok') == 0) {
 
-                                        showUser(1);
-                                        showAlert('success', 'Tạo tài khoản thành công', 3000);
+                                        showUser(1, 'Account');
+                                        showAlert('success', 'Successful creation of an account', 3000);
                                     } else if (data_response.localeCompare('error exist') == 0) {
-                                        showAlert('danger', 'Tài khoản đã tồn tại', 3000);
+                                        showAlert('danger', 'Account is already set up', 3000);
                                     } else {
-                                        showAlert('danger', 'Tạo tài khoản thất bại', 3000);
+                                        showAlert('danger', 'Failure to create an account', 3000);
                                     }                            
                                 },
                                 error: function(xhr, status, error) {
@@ -493,20 +739,88 @@ $(window).load(function() {
                                         // Retry AJAX call
                                         createUser();
                                     } else {
-                                        showAlert('danger', 'Gặp sự cố khi kết nối đến máy chủ', 3000);
+                                        showAlert('danger', 'Accessing the server is not working properly', 3000);
                                     }
                                 }                            
                             });	                               
                         }     
                         else
                         {
-                            showAlert('danger', 'Không có quyền thiết lập', 3000);
+                            showAlert('danger', 'No permissions are configured', 3000);
                         }               
                     }	                    
                 }
 
                 document.getElementById('popup-create').style.visibility = 'hidden';
-            ">Xác nhận</button>
+            ">Confirm</button>
+		</div>
+	</div>
+</div>
+
+<div class="popup-create" id="popup-create-phone">
+	<div class="form-create">
+		<div class="div-title">
+			<label class="title">
+                NEW PHONE NUMBER 
+			</label>
+		</div>
+		<form action="#">
+			<div>
+				<label>Phone number(<span style="color: red;">*</span>): </label>
+                <br>
+				<input type="text" value="" placeholder="Enter Phone Number" id="Phone_Number" onfocus="this.style.border = ''" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+			</div>
+		</form>
+		<div class="btn_confirm_create">
+			<button class="btn-cancel" onclick="
+                document.getElementById('popup-create-phone').style.visibility = 'hidden';
+            ">Cancel</button>
+			<button class="btn-confirm" onclick="
+                var flagError = false;
+                if (document.getElementById('Phone_Number').value.length != 10)
+                {
+                    document.getElementById('Phone_Number').style.border = '2px solid red';
+                    flagError = true;
+
+                    showAlert('danger', 'Incorrect format for a phone number', 3000);
+                }      
+                
+                if(flagError)
+                    return;     
+                else
+                {
+                    if ((typeUser == 1) || (typeUser == 4))
+                    {
+                        var obj             = new Object();
+                        obj.type            = 'Set-Number-Phone';
+                        obj.leader          = leader;
+                        obj.number_phone    = document.getElementById('Phone_Number').value;
+                        obj.locations       = [];
+
+                        window.parent.postMessage(JSON.stringify(obj), '*');                                                         
+                    }     
+                    else
+                    {
+                        showAlert('danger', 'No permissions are configured', 3000);
+                    }                       
+                }      
+                
+                document.getElementById('popup-create-phone').style.visibility = 'hidden';
+				
+				// Active loader
+				document.getElementById('wait_div').style.visibility = 'visible';	
+	
+				clearTimeout(timeoutLocation);
+				timeoutLocation = setTimeout(function() { 
+					if (document.getElementById('wait_div').style.visibility == 'visible')
+					{
+						// Deactive loader
+						document.getElementById('wait_div').style.visibility = 'hidden'; 
+
+						showAlert('danger', 'Configuration failed', 5000);  
+					}                     
+				}, 3000);				
+            ">Confirm</button>
 		</div>
 	</div>
 </div>
@@ -520,10 +834,10 @@ $(window).load(function() {
 			<p id="content_popup_confirm"></p>
 		</div>
 		<div class="btn_new_folder">
-			<button class="btn_cancel" onclick="document.getElementById('popup_confirm').style.visibility = 'hidden';">Hủy bỏ</button>
+			<button class="btn_cancel" onclick="document.getElementById('popup_confirm').style.visibility = 'hidden';">Cancel</button>
 			<button class="btn_confirm" onclick="
                 document.getElementById('popup_confirm').style.visibility = 'hidden';
-                if (document.getElementById('header_popup_confirm').innerHTML.localeCompare('XÓA TÀI KHOẢN') == 0)
+                if (document.getElementById('header_popup_confirm').innerHTML.localeCompare('REMOVE THE ACCOUNT') == 0)
                 {
                     $.ajax({
                         type: 'GET',
@@ -564,12 +878,12 @@ $(window).load(function() {
                                         success: function(result) {
                                         
                                             if (result.localeCompare('ok') != 0) {
-                                                showAlert('danger', 'Xóa tài khoản thất bại', 3000);
+                                                showAlert('danger', 'Account deactivation was unsuccessful.', 3000);
                                             }
                                             else
                                             {
-                                                showUser(1);
-                                                showAlert('success', 'Xóa tài khoản thành công', 3000);
+                                                showUser(1, 'Account');
+                                                showAlert('success', 'Account deactivation was successful.', 3000);
                                             }
                                         }
                                     });                  
@@ -580,14 +894,14 @@ $(window).load(function() {
                             if (status === 'timeout' && retryCount < maxRetries) {
                                 retryCount++;
                                 // Retry AJAX call
-                                showUser(1);
+                                showUser(1, 'Account');
                             } else {
-                                showAlert('danger', 'Gặp sự cố khi kết nối đến máy chủ', 3000);               
+                                showAlert('danger', 'Accessing the server is not working properly', 3000);               
                             }
                         } 
                     });                         
                 }   
-                else if (document.getElementById('header_popup_confirm').innerHTML.localeCompare('THIẾT LẬP TÀI KHOẢN') == 0)
+                else if (document.getElementById('header_popup_confirm').innerHTML.localeCompare('ACCOUNT SETTINGS') == 0)
                 {
                     $.ajax({
                         type: 'POST',						
@@ -597,16 +911,52 @@ $(window).load(function() {
                         },
                         success: function(data) {
                             if (data.localeCompare('error') == 0) {
-                                showAlert('danger', 'Thiết lập tài khoản thất bại', 3000);
+                                showAlert('danger', 'Failure to set up an account', 3000);
                             }
                             else
                             {
-                                showAlert('success', 'Thiết lập tài khoản thành công', 3000);
+                                showAlert('success', 'Success in account setting', 3000);
                             }
                         }
                     });                    
-                }           
-            ">Xác nhận</button>
+                }  
+				else if (document.getElementById('header_popup_confirm').innerHTML.localeCompare('REMOVE PHONE') == 0)
+				{
+					// Fimd page active
+					var page = 1;
+					var ul = document.getElementById('page_menu');
+					for(var i = 0; i < ul.childNodes.length; i++)
+					{
+						if (ul.childNodes[i].classList.contains('active'))
+						{
+							page = i;
+							break;
+						}
+					}
+
+                    var obj             = new Object();
+                    obj.type            = 'Delete-Number-Phone';
+                    obj.leader          = leader;
+                    obj.number_phone    = document.getElementById('content_popup_confirm').name;
+					obj.page			= page;
+					
+                    window.parent.postMessage(JSON.stringify(obj), '*'); 
+					
+					// Active loader
+					document.getElementById('wait_div').style.visibility = 'visible';	
+						
+					clearTimeout(timeoutLocation);
+					timeoutLocation = setTimeout(function() { 
+						if (document.getElementById('wait_div').style.visibility == 'visible')
+						{
+							// Deactive loader
+							document.getElementById('wait_div').style.visibility = 'hidden'; 
+
+							showAlert('danger', 'Configuration failed', 5000);  
+						}                     
+					}, 3000);
+				}
+            ">Confirm</button>
 		</div>
 	</div>
 </div>
@@ -615,7 +965,7 @@ $(window).load(function() {
 	<div class="popup-program-content" >
 		<div class="program-list-table">
 			<div class="header-program-table">
-				<p>DANH SÁCH TRUNG TÂM GO!</p>
+				<p>GO! CENTER LIST</p>
 			</div>
             <div class="container">
                 <div class="column">
@@ -664,7 +1014,7 @@ $(window).load(function() {
                 </div>
             </div>
 			<div class="btn_program_list">
-                <button class="btn-cancel" onclick="document.getElementById('popup_location').style.visibility = 'hidden';">Hủy bỏ</button>
+                <button class="btn-cancel" onclick="document.getElementById('popup_location').style.visibility = 'hidden';">Cancel</button>
 				<button class="btn-confirm" onclick="
                     var locations = [];
                     
@@ -689,16 +1039,17 @@ $(window).load(function() {
                     if (document.getElementById('CTO').checked)
                         locations.push('CTO');
 
-                    var obj = new Object();
-                    obj.type = 'Set-Locations';
-                    obj.user = document.getElementById('popup_location').name;
-                    obj.leader = leader;
-                    obj.locations = locations;
+                    var obj          = new Object();
+                    obj.type         = 'Set-Locations';
+                    obj.user         = document.getElementById('popup_location').name.split('_')[0];
+                    obj.leader       = leader;
+                    obj.locations    = locations;
+                    obj.location_for = document.getElementById('popup_location').name.split('_')[1];
 
                     window.parent.postMessage(JSON.stringify(obj), '*');  
                     
                     document.getElementById('popup_location').style.visibility = 'hidden';
-                ">Xác nhận</button>
+                ">Confirm</button>
 			</div>
 		</div>
 	</div>
