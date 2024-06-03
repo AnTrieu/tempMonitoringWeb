@@ -20,11 +20,12 @@
         
         let m_widthImg = -1;
         let m_heightImg = -1;
-        let m_bodyWidth = -1; 
+        let m_bodyWidth = -1;
         let m_bodyHeight = -1;
 
         let m_warningFlag = false;
         let m_threshold = 0;
+        let m_thresholdDelta = 0;
         let m_temperate = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         let m_issue = ['', '', '', '', '', '', '', '', '', ''];
         let m_issueTemp = ['', '', '', '', '', '', '', '', '', ''];
@@ -32,11 +33,13 @@
         let data_chart = [];
         let m_timeUpdate = -1;
         let scheduleChart = -1;
+        let m_timeFocus = -1;
         let myChart = null;
 
         let typeUser = -1;
 
         let m_flagDeleteNotify = false;
+        let m_typeFocus = -1;
     </script>
 </head>
 <body class="body_DAN">
@@ -46,7 +49,7 @@
 		<p class="alert-text" id="alert-text"></p>
 	</div>
 
-    <label class="outsite-label" id="info_outsite"></label>
+    <label class="outsite-label" id="OUT_square_11" style="cursor: pointer;" onclick="show_menu(document.getElementById('OUT_square_11'));"></label>
 
     <div id="context-menu" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; top: 100px; left: 500px; color: black;z-index: 2000;">
         <ul style="list-style: none; padding: 0; margin: 0;">
@@ -156,7 +159,8 @@
                     }                    
                 ">
             </label>
-            <input type="text" style="width:100%; height:80%; font-size: 1.2vw; display: none;" oninput="this.value = this.value.replace(/[^0-9.]/g, '');" onblur="selectThreshold(this.value)" onkeydown="if (event.keyCode === 13) {selectThreshold(this.value);}">
+            <input type="text" style="width:100%; height:80%; font-size: 1.2vw; display: none;" oninput="this.value = this.value.replace(/[^0-9.]/g, '');" onfocus="m_typeFocus = 0;" onblur="selectThreshold(0)" onkeydown="if (event.keyCode === 13) {selectThreshold(3);}">
+            <input type="text" style="width:100%; height:80%; font-size: 1.2vw; display: none;" oninput="this.value = this.value.replace(/[^0-9.]/g, '');" onfocus="m_typeFocus = 1;" onblur="selectThreshold(1)" onkeydown="if (event.keyCode === 13) {selectThreshold(3);}">
         </div>
         <div style="position: absolute; display: flex; justify-content: start; align-items: center;">
             <input type="checkbox" style="left: 0px; opacity: 1; pointer-events: auto; width: 1.3vw; height: 1.3vw;" 
@@ -441,25 +445,39 @@
             window.parent.postMessage(JSON.stringify(obj), '*');    
         }
 
-        function selectThreshold(value)
+        function selectThreshold(type)
         {
-            if ((value.length > 0) && (document.getElementById('title').childNodes[5].childNodes[1].style.display.localeCompare('none') == 0))
-            {                
-                m_timeUpdate = Math.floor(new Date().getTime() / 1000);
-                m_threshold = parseInt(document.getElementById('title').childNodes[5].childNodes[3].value);
-                document.getElementById('title').childNodes[5].childNodes[1].innerHTML = Math.floor(m_threshold / 10)  + '.' + m_threshold % 10 + ' &deg; C';
+            clearTimeout(m_timeFocus);
+            m_timeFocus = setTimeout(function(type) {
 
-                var obj = new Object(); 
-                obj.type        = 'Request-Threshold';
-                obj.location    = document.body.className.split('_')[1];
-                obj.value       = m_threshold;
-                obj.user        = sessionStorage.getItem('username');
+                if ((type == 3) || ((m_typeFocus > -1) && (type == m_typeFocus)))
+                {
+                    if ((document.getElementById('title').childNodes[5].childNodes[3].value.length > 0) && 
+                        (document.getElementById('title').childNodes[5].childNodes[5].value.length > 0) &&
+                        (document.getElementById('title').childNodes[5].childNodes[1].style.display.localeCompare('none') == 0))
+                    {                
+                        m_timeUpdate        = Math.floor(new Date().getTime() / 1000);
+                        m_threshold         = parseInt(document.getElementById('title').childNodes[5].childNodes[3].value);
+                        m_thresholdDelta    = parseInt(document.getElementById('title').childNodes[5].childNodes[5].value);
+                        document.getElementById('title').childNodes[5].childNodes[1].innerHTML = Math.floor(m_threshold / 10)  + "." + m_threshold % 10 + " &deg; C  &plusmn; " + Math.floor(m_thresholdDelta / 10)  + "." + m_thresholdDelta % 10 + " &deg; C";
 
-                window.parent.postMessage(JSON.stringify(obj), '*');                         
-            }    
-            
-            document.getElementById('title').childNodes[5].childNodes[1].style.display = '';
-            document.getElementById('title').childNodes[5].childNodes[3].style.display = 'none';               
+                        var obj = new Object(); 
+                        obj.type        = 'Request-Threshold';
+                        obj.location    = document.body.className.split('_')[1];
+                        obj.value       = m_threshold;
+                        obj.delta       = m_thresholdDelta;
+                        obj.user        = sessionStorage.getItem('username');
+
+                        window.parent.postMessage(JSON.stringify(obj), '*');                         
+                    }  
+                    
+                    document.getElementById('title').childNodes[5].childNodes[1].style.display = '';
+                    document.getElementById('title').childNodes[5].childNodes[3].style.display = 'none';
+                    document.getElementById('title').childNodes[5].childNodes[5].style.display = 'none'; 
+
+                    m_typeFocus = -1;
+                }                    
+            }, 200, type);          
         }
 
         function confirmPopup(target)
@@ -538,7 +556,9 @@
                         {
                             document.getElementById('title').childNodes[5].childNodes[1].style.display = 'none';
                             document.getElementById('title').childNodes[5].childNodes[3].style.display = '';
-                            document.getElementById('title').childNodes[5].childNodes[3].value = document.getElementById('title').childNodes[5].childNodes[1].name;
+                            document.getElementById('title').childNodes[5].childNodes[3].value = document.getElementById('title').childNodes[5].childNodes[1].name.split('_')[0];
+                            document.getElementById('title').childNodes[5].childNodes[5].style.display = '';
+                            document.getElementById('title').childNodes[5].childNodes[5].value = document.getElementById('title').childNodes[5].childNodes[1].name.split('_')[1];                            
                             document.getElementById('title').childNodes[5].childNodes[3].focus();
                         }
                         else if (header.localeCompare('DELETE MESSAGES') == 0)
@@ -571,7 +591,7 @@
                 var number = parseInt(circleId[2]);
                 if (circleId[0].localeCompare("MALL") == 0)
                     number +=  EB_pos.length;
-                    
+               
                 document.getElementById("menu-title").textContent = "Lo." + number;
                 document.getElementById("note-sensor").innerHTML = element.name;
                 var parts = element.id.split('_');
@@ -579,16 +599,26 @@
                     document.getElementById('note-sensor').name = parseInt(parts[2]);
                 else if(parts[0] == "MALL")
                     document.getElementById('note-sensor').name = EB_pos.length + parseInt(parts[2]);
+                else if(parts[0] == "OUT")
+                    document.getElementById('note-sensor').name = 11;                    
                 else
                     document.getElementById('note-sensor').name = -1;
 
-                document.getElementById("context-menu").style.top = element.offsetTop + "px";
-                document.getElementById("context-menu").style.left = element.offsetLeft + "px";
-                if(m_widthImg > 0 && m_heightImg > 0 && m_bodyWidth > 0 && m_bodyHeight > 0)
+                if (circleId[0].localeCompare("OUT") == 0)
                 {
-                    if ((element.offsetTop + 136) > m_bodyHeight)
+                    document.getElementById("context-menu").style.top = (element.offsetTop + element.clientHeight/2) + "px";
+                    document.getElementById("context-menu").style.left = (element.offsetLeft + element.clientWidth/2) + "px";
+                }
+                else
+                {
+                    document.getElementById("context-menu").style.top = element.offsetTop + "px";
+                    document.getElementById("context-menu").style.left = element.offsetLeft + "px";
+                    if(m_widthImg > 0 && m_heightImg > 0 && m_bodyWidth > 0 && m_bodyHeight > 0)
                     {
-                        document.getElementById("context-menu").style.top = (element.offsetTop - 136) + "px";
+                        if ((element.offsetTop + 136) > m_bodyHeight)
+                        {
+                            document.getElementById("context-menu").style.top = (element.offsetTop - 136) + "px";
+                        }
                     }
                 }
 
@@ -605,12 +635,12 @@
             if ((-0xffff >= sensor_value) || (sensor_value >= 0xffff))
                 sensor_value = 0;
 
-            document.getElementById("info_outsite").style.top = normalize(1160, height_Img, bodyHeight) + 'px'; 
-            document.getElementById("info_outsite").style.left = normalize(1265, width_Img, bodyWidth) + 'px'; 
-            document.getElementById("info_outsite").style.width = normalize(310, width_Img, bodyWidth) + 'px';
-            document.getElementById("info_outsite").style.height = normalize(58, height_Img, bodyHeight) + 'px';
-            document.getElementById("info_outsite").innerHTML = "Outside: " + Math.floor(sensor_value / 10)  + "." +sensor_value % 10 + " &deg; C";
-            document.getElementById("info_outsite").classList.add("line-visible");                             
+            document.getElementById("OUT_square_11").style.top = normalize(1160, height_Img, bodyHeight) + 'px'; 
+            document.getElementById("OUT_square_11").style.left = normalize(1265, width_Img, bodyWidth) + 'px'; 
+            document.getElementById("OUT_square_11").style.width = normalize(310, width_Img, bodyWidth) + 'px';
+            document.getElementById("OUT_square_11").style.height = normalize(58, height_Img, bodyHeight) + 'px';
+            document.getElementById("OUT_square_11").innerHTML = "Outside: " + Math.floor(sensor_value / 10)  + "." +sensor_value % 10 + " &deg; C";
+            document.getElementById("OUT_square_11").classList.add("line-visible");                             
         }
 
         function draw_MALL(width_Img, height_Img, bodyWidth, bodyHeight)
@@ -694,20 +724,20 @@
             }
 
             document.getElementById('title').childNodes[3].style.height = normalize(61, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[3].style.width = normalize(472, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[3].style.width = normalize(308, width_Img, bodyWidth) + 'px';
             document.getElementById('title').childNodes[3].style.top = normalize(66, height_Img, bodyHeight) + 'px';
             document.getElementById('title').childNodes[3].style.left = normalize(0, width_Img, bodyWidth) + 'px';
             document.getElementById('title').childNodes[3].childNodes[1].textContent = "Warning level";
 
             document.getElementById('title').childNodes[5].style.height = normalize(61, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[5].style.width = normalize(157, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[5].style.width = normalize(321, width_Img, bodyWidth) + 'px';
             document.getElementById('title').childNodes[5].style.top = normalize(66, height_Img, bodyHeight) + 'px';
-            document.getElementById('title').childNodes[5].style.left = normalize(472, width_Img, bodyWidth) + 'px';
+            document.getElementById('title').childNodes[5].style.left = normalize(308, width_Img, bodyWidth) + 'px';
             // Active update after 4 seconds
             if ((epochCurrentSeconds - m_timeUpdate) > 4)
             {
-                document.getElementById('title').childNodes[5].childNodes[1].innerHTML = Math.floor(m_threshold / 10)  + "." + m_threshold % 10 + " &deg; C";
-                document.getElementById('title').childNodes[5].childNodes[1].name = m_threshold;
+                document.getElementById('title').childNodes[5].childNodes[1].innerHTML = Math.floor(m_threshold / 10)  + "." + m_threshold % 10 + " &deg; C  &plusmn; " + Math.floor(m_thresholdDelta / 10)  + "." + m_thresholdDelta % 10 + " &deg; C";
+                document.getElementById('title').childNodes[5].childNodes[1].name = m_threshold + "_" + m_thresholdDelta;
             }         
 
             /* Request flag */
@@ -1005,10 +1035,11 @@
                             {
                                 if(msg.data.locations[i][0].localeCompare(parts[0]) == 0)
                                 {
-                                    m_threshold     = msg.data.locations[i][2];
-                                    m_warningFlag   = msg.data.locations[i][1];
-                                    m_temperate     = msg.data.locations[i][3]; 
-                                    m_issue         = msg.data.locations[i][5]; 
+                                    m_threshold         = msg.data.locations[i][2];
+                                    m_thresholdDelta    = msg.data.locations[i][6];
+                                    m_warningFlag       = msg.data.locations[i][1];
+                                    m_temperate         = msg.data.locations[i][3]; 
+                                    m_issue             = msg.data.locations[i][5]; 
 
                                     for(var j = 1; j <= m_temperate.length; j++)
                                     {
@@ -1072,7 +1103,14 @@
                                                 if (document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.contains("warning"))
                                                     document.getElementById("MALL_circle_" + (j - EB_pos.length)).classList.remove("warning");                                                                                                       
                                             }
-                                        }                                                                                      
+                                        } 
+                                        else
+                                        {
+                                            if(document.getElementById("OUT_square_11") == null)
+                                                continue;
+
+                                            document.getElementById("OUT_square_11").name = msg.data.locations[i][4][j - 1];
+                                        }                                                                                     
                                     }
                                     
                                     if(m_widthImg > 0 && m_heightImg > 0 && m_bodyWidth > 0 && m_bodyHeight > 0)
@@ -1159,6 +1197,7 @@
                         }
                         else if (obj.type.localeCompare("Update-Type-User") == 0)
                         {
+                            // console.log(typeUser)
                             typeUser = obj.typeUser;
                         }                        
                     }

@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
     <link rel="shortcut icon" href="#">
-    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.13">
+    <link rel="stylesheet" type="text/css" href="./css/common.css?v=1.0.15">
     <link rel="stylesheet" type="text/css" href="./css/main_page.css?v=1.0.14">
     <script src="./js/stomp.js?v=1.0.0"></script>
     <script src="./js/login.js?v=1.0.0"></script>
@@ -249,6 +249,7 @@
             {
                 // Filter when the message is duplicated
                 var msg = JSON.parse(message);
+                // console.log(msg)
                 if(ignore || timestamp != msg.timestamp)
                 {
                     timestamp = msg.timestamp;
@@ -267,8 +268,10 @@
                         {
                             if(msg.data.location.length > 0)
                             {
-                                allow_location = msg.data.location[0];
+                                if (msg.data.user.localeCompare(sessionStorage.getItem("username")) == 0)
+                                    allow_location = msg.data.location[0];
 
+                                // console.log(allow_location)
                                 if ((typeUser == 1) || (typeUser == 4))
                                 {
                                     var obj = new Object();
